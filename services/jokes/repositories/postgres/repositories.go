@@ -1,0 +1,101 @@
+package postgres
+
+import (
+	"context"
+	"database/sql"
+	"time"
+
+	"github.com/davq23/jokeapibutbetter/app/data"
+)
+
+type Joke struct {
+	db *sql.DB
+}
+
+func NewJoke(db *sql.DB) *Joke {
+	return &Joke{
+		db: db,
+	}
+}
+
+func (j *Joke) GetByID(c context.Context, id string) (*data.Joke, error) {
+	joke := &data.Joke{}
+	statement, err := j.db.PrepareContext(
+		c,
+		"SELECT j.uuid, j.text, j.author_id, j.description, j.lang, u.username, u.email FROM jokes j JOIN users u ON j.author_id = u.uuid WHERE j.uuid = $1 AND j.deleted_at IS NULL",
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer statement.Close()
+
+	joke.User = &data.User{}
+
+	err = statement.QueryRowContext(c, id).Scan(&joke.ID, &joke.Text, &joke.AuthorID, &joke.Description, &joke.Language, &joke.User.Username, &joke.User.Email)
+
+	joke.User.ID = joke.AuthorID
+
+	if err != nil {
+		return nil, err
+	}
+
+	return joke, nil
+}
+
+func (j *Joke) GetAll(c context.Context, limit uint64) ([]*data.Joke, error) {
+	return nil, nil
+}
+
+func (j *Joke) Insert(c context.Context, joke *data.Joke) error {
+	statement, err := j.db.PrepareContext(
+		c,
+		"INSERT INTO jokes (uuid, text, author_id, description, lang, added_at) VALUES ($1, $3, $2, $4, $5, $6)",
+	)
+
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	now := time.Now()
+	joke.AddedAt = &now
+
+	_, err = statement.ExecContext(c, joke.ID, joke.AuthorID, joke.Text, joke.Description, joke.Language, joke.AddedAt.UTC())
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (j *Joke) Delete(c context.Context, joke *data.Joke) error {
+	return nil
+}
+
+func (j *Joke) Update(c context.Context, joke *data.Joke) error {
+	statement, err := j.db.PrepareContext(
+		c,
+		"UPDATE jokes SET text = $2, author_id = $1, description = $3, lang = $4, modified_at = $5 WHERE uuid = $6 AND deleted_at IS NULL",
+	)
+
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	now := time.Now()
+	joke.ModifiedAt = &now
+
+	_, err = statement.ExecContext(c, joke.AuthorID, joke.Text, joke.Description, joke.Language, joke.ModifiedAt.UTC(), joke.ID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
