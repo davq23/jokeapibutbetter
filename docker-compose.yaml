@@ -1,0 +1,19 @@
+version: '2.12.1'
+services:
+  users:
+    build:
+      dockerfile: './users.dockerfile'
+    ports:
+      - '8080:8080'
+
+  jokes:
+    build:
+      dockerfile: './jokes.dockerfile'
+    ports:
+      - '8055:8055'
+  
+  ratings:
+    build:
+      dockerfile: './ratings.dockerfile'
+    ports:
+      - '8056:8056'
