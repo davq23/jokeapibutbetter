@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/davq23/jokeapibutbetter/app/config"
 	"github.com/davq23/jokeapibutbetter/app/data"
@@ -79,8 +80,11 @@ func (a *App) Setup() error {
 	postRoutes.HandleFunc("/jokes", jokeHandler.Save)
 
 	a.server = &http.Server{
-		Addr:    ":8055",
-		Handler: router,
+		Addr:         ":8055",
+		Handler:      router,
+		WriteTimeout: time.Minute,
+		ReadTimeout:  33 * time.Second,
+		IdleTimeout:  4 * time.Minute,
 	}
 
 	return err
