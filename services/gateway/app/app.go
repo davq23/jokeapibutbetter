@@ -3,8 +3,10 @@ package app
 import (
 	"context"
 	"net/http"
+	"os"
 	"time"
 
+	appServices "github.com/davq23/jokeapibutbetter/app/services"
 	"github.com/gorilla/mux"
 )
 
@@ -18,11 +20,20 @@ func (a *App) Shutdown(ctx context.Context) error {
 }
 
 func (a *App) Setup() error {
+	configService := appServices.NewConfig(os.Getenv("CONFIG_URL"), &http.Client{}, os.Getenv("INTERNAL_TOKEN"))
+	config, err := configService.Get(context.Background())
+	if err != nil {
+		return err
+	}
+
+	os.Setenv("TZ", config.Timezone)
+	//logger := log.New(os.Stdout, "gateway service - ", log.LstdFlags)
+
 	router := mux.NewRouter()
 
 	a.server = &http.Server{
 		Handler:      router,
-		Addr:         ":8054",
+		Addr:         ":8080",
 		WriteTimeout: 5 * time.Second,
 		ReadTimeout:  time.Second,
 	}
