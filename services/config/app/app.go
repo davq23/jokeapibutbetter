@@ -39,8 +39,8 @@ func (a *App) Setup() error {
 	a.server = &http.Server{
 		Addr:         ":8054",
 		Handler:      router,
-		WriteTimeout: 33 * time.Minute,
-		ReadTimeout:  33 * time.Minute,
+		WriteTimeout: time.Minute,
+		ReadTimeout:  time.Second,
 		IdleTimeout:  time.Minute,
 	}
 
