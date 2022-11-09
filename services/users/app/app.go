@@ -9,9 +9,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/davq23/jokeapibutbetter/app/config"
 	"github.com/davq23/jokeapibutbetter/app/data"
+	"github.com/davq23/jokeapibutbetter/app/libs"
 	"github.com/davq23/jokeapibutbetter/app/middlewares"
+	appServices "github.com/davq23/jokeapibutbetter/app/services"
 	"github.com/davq23/jokeapibutbetter/services/users/handlers"
 	"github.com/davq23/jokeapibutbetter/services/users/repositories/postgres"
 	"github.com/davq23/jokeapibutbetter/services/users/services"
@@ -32,15 +33,17 @@ func (a *App) Shutdown(ctx context.Context) error {
 }
 
 func (a *App) Setup() error {
-	dbConfig, err := config.LoadDBConfig()
-
+	configService := appServices.NewConfig(os.Getenv("CONFIG_URL"), &http.Client{}, os.Getenv("INTERNAL_TOKEN"))
+	config, err := configService.Get(context.Background())
 	if err != nil {
 		return err
 	}
+	config.FixValues()
+	os.Setenv("TZ", config.Timezone)
 	logger := log.New(os.Stdout, "users service - ", log.LstdFlags)
 
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		dbConfig["host"], dbConfig["port"], dbConfig["user"], dbConfig["password"], dbConfig["dbname"], dbConfig["sslmode"],
+	psqlInfo := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
+		config.DBUser, config.DBPassword, config.DBHost, config.DBName, config.SSLMode,
 	)
 
 	a.db, err = sql.Open("postgres", psqlInfo)
@@ -51,20 +54,28 @@ func (a *App) Setup() error {
 
 	userRepository := postgres.NewUser(a.db)
 	userService := services.NewUser(userRepository)
-	userHandler := handlers.NewUser(userService, logger)
+	userHandler := handlers.NewUser(userService, logger, config.APISecret)
 	validate := validator.New()
 
-	bodyValidator := middlewares.NewBodyValidator(validate, func() interface{} {
+	userBodyValidator := middlewares.NewBodyValidator(validate, func() interface{} {
 		return &data.User{}
 	})
-	jwtMiddleware := middlewares.NewJWTAuth("")
+	authBodyValidator := middlewares.NewBodyValidator(validate, func() interface{} {
+		return &libs.AuthRequest{}
+	})
+
+	jwtMiddleware := middlewares.NewJWTAuth(config.APISecret, logger)
 
 	router := mux.NewRouter()
 	router.Use(middlewares.FormatMiddleware)
 
+	authRoutes := router.PathPrefix("/auth").Methods(http.MethodPost).Subrouter()
+	authRoutes.Use(authBodyValidator.ValidatorMiddleware)
+	authRoutes.HandleFunc("/users/authenticate", userHandler.AuthenticateUser)
+
 	postRoutes := router.Methods(http.MethodPost).Subrouter()
-	postRoutes.Use(bodyValidator.ValidatorMiddleware)
 	postRoutes.Use(jwtMiddleware.AuthMiddleware)
+	postRoutes.Use(userBodyValidator.ValidatorMiddleware)
 
 	getRoutes := router.Methods(http.MethodGet).Subrouter()
 

@@ -35,15 +35,15 @@ func (j JSONFormatter) GetFormatName() string {
 type XMLFormatter struct {
 }
 
-func (j XMLFormatter) WriteFormatted(w io.Writer, data interface{}) error {
+func (x XMLFormatter) WriteFormatted(w io.Writer, data interface{}) error {
 	w.Write([]byte(xml.Header))
 	return xml.NewEncoder(w).Encode(data)
 }
 
-func (j XMLFormatter) ReadFormatted(r io.Reader, data interface{}) error {
+func (x XMLFormatter) ReadFormatted(r io.Reader, data interface{}) error {
 	return xml.NewDecoder(r).Decode(data)
 }
 
-func (j XMLFormatter) GetFormatName() string {
+func (x XMLFormatter) GetFormatName() string {
 	return XML_FORMAT
 }

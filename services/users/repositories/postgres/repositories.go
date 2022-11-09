@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/davq23/jokeapibutbetter/app/data"
+	"github.com/lib/pq"
 )
 
 type User struct {
@@ -70,7 +71,7 @@ func (u *User) FetchByEmail(c context.Context, email string) (*data.User, error)
 	user := &data.User{}
 	statement, err := u.db.PrepareContext(
 		c,
-		"SELECT uuid, username, email, hash FROM users WHERE email = $1 AND deleted_at IS NULL",
+		"SELECT uuid, username, email, hash, roles FROM users WHERE email = $1 AND deleted_at IS NULL",
 	)
 
 	if err != nil {
@@ -79,7 +80,7 @@ func (u *User) FetchByEmail(c context.Context, email string) (*data.User, error)
 
 	defer statement.Close()
 
-	err = statement.QueryRowContext(c, email).Scan(&user.ID, &user.Username, &user.Email, &user.Hash)
+	err = statement.QueryRowContext(c, email).Scan(&user.ID, &user.Username, &user.Email, &user.Hash, pq.Array(&user.Roles))
 
 	if err != nil {
 		return nil, err
@@ -92,7 +93,7 @@ func (u *User) FetchByID(c context.Context, id string) (*data.User, error) {
 	user := &data.User{}
 	statement, err := u.db.PrepareContext(
 		c,
-		"SELECT uuid, username, email, hash FROM users WHERE uuid = $1 AND deleted_at IS NULL",
+		"SELECT uuid, username, email, hash, roles FROM users WHERE uuid = $1 AND deleted_at IS NULL",
 	)
 
 	if err != nil {
@@ -101,7 +102,7 @@ func (u *User) FetchByID(c context.Context, id string) (*data.User, error) {
 
 	defer statement.Close()
 
-	err = statement.QueryRowContext(c, id).Scan(&user.ID, &user.Username, &user.Email, &user.Hash)
+	err = statement.QueryRowContext(c, id).Scan(&user.ID, &user.Username, &user.Email, &user.Hash, pq.Array(&user.Roles))
 
 	if err != nil {
 		return nil, err

@@ -26,11 +26,15 @@ type UserDataKey struct{}
 type User struct {
 	XMLName xml.Name `json:"-" xml:"user"`
 	Data
-	Email    string `json:"email" xml:"email" validate:"required,email"`
-	Username string `json:"username" xml:"username" validate:"required"`
-	Hash     string `json:"hash,omitempty" xml:"hash,omitempty" validate:"required"`
+	Email    string   `json:"email" xml:"email" validate:"required,email"`
+	Username string   `json:"username" xml:"username" validate:"required"`
+	Hash     string   `json:"hash,omitempty" xml:"hash,omitempty" validate:"required"`
+	Roles    []string `json:"roles" xml:"roles>role"`
 	isHashed bool
 }
+
+const USER_ROLE_ADMIN = "ADMIN"
+const USER_ROLE_USER = "USER"
 
 func (u *User) HashPassword() (err error) {
 	if !u.isHashed {

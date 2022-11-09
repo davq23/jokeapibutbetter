@@ -45,7 +45,7 @@ func (u Joke) GetByID(c context.Context, id string, formatter libs.Formatter) (*
 
 	if response.Status != http.StatusOK {
 		return nil, &libs.ApiError{
-			Err: fmt.Errorf("Error: %d", response.Status),
+			Err: fmt.Errorf("error: %d", response.Status),
 		}
 	}
 
@@ -53,7 +53,7 @@ func (u Joke) GetByID(c context.Context, id string, formatter libs.Formatter) (*
 
 	if !ok {
 		return nil, &libs.ApiError{
-			Err: fmt.Errorf("Error: %s", response.Data),
+			Err: fmt.Errorf("error: %s", response.Data),
 		}
 	}
 
@@ -141,8 +141,37 @@ func (u Service) makeRequest(method string, path string, token string, formatter
 	err = formatter.ReadFormatted(response.Body, parsedResponse)
 
 	if err != nil {
-		return nil, err
+		return parsedResponse, err
 	}
 
 	return parsedResponse, nil
+}
+
+type Config struct {
+	Service
+}
+
+func NewConfig(apiUrl string, client *http.Client, authorizationToken string) *Config {
+	if apiUrl == "" {
+		apiUrl = "http://host.docker.internal:8054"
+	}
+	return &Config{
+		Service: Service{
+			apiUrl:             apiUrl,
+			client:             client,
+			authorizationToken: authorizationToken,
+		},
+	}
+}
+
+func (c *Config) Get(ctx context.Context) (*libs.ConfigResponse, error) {
+	parsedResponse, err := c.Service.makeRequest(http.MethodGet, "/config", "", &libs.JSONFormatter{}, func() interface{} {
+		return &libs.ConfigResponse{}
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return parsedResponse.Data.(*libs.ConfigResponse), err
 }

@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 	"strings"
 
@@ -11,12 +12,14 @@ import (
 )
 
 type JWTAuth struct {
+	logger *log.Logger
 	secret string
 }
 
-func NewJWTAuth(secret string) *JWTAuth {
+func NewJWTAuth(secret string, logger *log.Logger) *JWTAuth {
 	return &JWTAuth{
 		secret: secret,
+		logger: logger,
 	}
 }
 
@@ -33,6 +36,8 @@ func (j *JWTAuth) AuthMiddleware(next http.Handler) http.Handler {
 
 		bearerAuthPair := strings.Split(r.Header.Get("Authorization"), " ")
 
+		j.logger.Println(bearerAuthPair)
+
 		if len(bearerAuthPair) != 2 {
 			formatter.WriteFormatted(w, libs.StandardReponse{
 				Status:  http.StatusForbidden,
@@ -41,27 +46,24 @@ func (j *JWTAuth) AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		token, err := jwt.ParseWithClaims(bearerAuthPair[1], &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
-			_, ok := token.Method.(*jwt.SigningMethodECDSA)
+		claims := &AuthClaims{}
+
+		token, err := jwt.ParseWithClaims(bearerAuthPair[1], claims, func(token *jwt.Token) (interface{}, error) {
+			_, ok := token.Method.(*jwt.SigningMethodHMAC)
 
 			if !ok {
 				return nil, errors.New("Forbidden")
 			}
 
-			return "", nil
+			return []byte(j.secret), nil
 		})
 
-		if err != nil {
-			formatter.WriteFormatted(w, libs.StandardReponse{
-				Status:  http.StatusForbidden,
-				Message: "Forbidden",
-			})
-			return
-		}
-
-		claims, ok := token.Claims.(*AuthClaims)
-
-		if !ok {
+		if err != nil || !token.Valid {
+			if err != nil {
+				j.logger.Println(err.Error())
+			} else {
+				j.logger.Println(token.Claims.Valid().Error())
+			}
 			formatter.WriteFormatted(w, libs.StandardReponse{
 				Status:  http.StatusForbidden,
 				Message: "Forbidden",

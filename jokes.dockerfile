@@ -21,7 +21,6 @@ RUN go build -o ./jokes ./services/jokes/main.go
 FROM alpine
 
 COPY --from=build /app/jokes /jokes
-COPY --from=build /app/db.env /db.env
 
 EXPOSE 8055
 

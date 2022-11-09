@@ -23,7 +23,6 @@ RUN go build -o ./ratings ./services/ratings/main.go
 FROM alpine
 
 COPY --from=build /app/ratings /ratings
-COPY --from=build /app/db.env /db.env
 
 EXPOSE 8056
 

@@ -17,13 +17,9 @@ RUN go mod download
 # Build users service
 RUN go build -o ./users ./services/users/main.go
 
-# Build main service 
-# RUN go build -o ./main /services/frontapi/main.go
-
 FROM alpine
 
 COPY --from=build /app/users /users
-COPY --from=build /app/db.env /db.env
 
 # Expose public port
 EXPOSE 8080

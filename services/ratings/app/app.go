@@ -9,7 +9,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/davq23/jokeapibutbetter/app/config"
 	"github.com/davq23/jokeapibutbetter/app/data"
 	"github.com/davq23/jokeapibutbetter/app/middlewares"
 	appServices "github.com/davq23/jokeapibutbetter/app/services"
@@ -33,15 +32,17 @@ func (a *App) Shutdown(ctx context.Context) error {
 }
 
 func (a *App) Setup() error {
-	dbConfig, err := config.LoadDBConfig()
-	logger := log.New(os.Stdout, "ratings service - ", log.LstdFlags)
-
+	client := &http.Client{}
+	configService := appServices.NewConfig(os.Getenv("CONFIG_URL"), client, os.Getenv("INTERNAL_TOKEN"))
+	config, err := configService.Get(context.Background())
 	if err != nil {
 		return err
 	}
-
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		dbConfig["host"], dbConfig["port"], dbConfig["user"], dbConfig["password"], dbConfig["dbname"], dbConfig["sslmode"],
+	config.FixValues()
+	os.Setenv("TZ", config.Timezone)
+	logger := log.New(os.Stdout, "users service - ", log.LstdFlags)
+	psqlInfo := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
+		config.DBUser, config.DBPassword, config.DBHost, config.DBName, config.SSLMode,
 	)
 
 	a.db, err = sql.Open("postgres", psqlInfo)
@@ -50,10 +51,8 @@ func (a *App) Setup() error {
 		return err
 	}
 
-	client := &http.Client{}
-
-	userService := appServices.NewUser("http://host.docker.internal:8080", client, "")
-	jokeService := appServices.NewJoke("http://host.docker.internal:8055", client, "")
+	userService := appServices.NewUser(config.UserServiceURL+":"+config.UserServicePort, client, "")
+	jokeService := appServices.NewJoke(config.JokeServiceURL+":"+config.JokeServicePort, client, "")
 	ratingRepository := postgres.NewRating(a.db)
 	ratingService := services.NewRating(jokeService, ratingRepository, userService)
 	ratingHandler := handlers.NewRating(ratingService, logger)
