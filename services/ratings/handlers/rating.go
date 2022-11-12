@@ -109,12 +109,11 @@ func (rt *Rating) GetByJokeIDAndUserID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rt *Rating) Save(w http.ResponseWriter, r *http.Request) {
-	formatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
-	rating := &data.Rating{}
-	err := formatter.ReadFormatted(r.Body, rating)
+	formatter, okFormatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
+	rating, okRating := r.Context().Value(middlewares.ValidatedBodyContextKey{}).(*data.Rating)
 
-	if err != nil {
-		rt.logger.Println(err.Error())
+	if !okFormatter || !okRating {
+		rt.logger.Println("no valid formatter or rating")
 		w.WriteHeader(http.StatusBadRequest)
 		formatter.WriteFormatted(w, libs.StandardReponse{
 			Status:  http.StatusBadRequest,
@@ -123,7 +122,7 @@ func (rt *Rating) Save(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = rt.ratingService.Save(r.Context(), rating)
+	err := rt.ratingService.Save(r.Context(), rating)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
