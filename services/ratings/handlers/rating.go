@@ -19,6 +19,7 @@ type Rating struct {
 func NewRating(ratingService *services.Rating, logger *log.Logger) *Rating {
 	return &Rating{
 		ratingService: ratingService,
+		logger:        logger,
 	}
 }
 
