@@ -59,8 +59,9 @@ func (u User) Save(c context.Context, user *data.User) error {
 		return errors.New("Forbidden")
 	}
 
+	user.HashPassword()
+
 	if strings.TrimSpace(user.ID) == "" {
-		user.HashPassword()
 		user.GenerateID()
 
 		_, err = u.FindByEmail(c, user.Email)
