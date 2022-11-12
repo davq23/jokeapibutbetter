@@ -149,9 +149,9 @@ func (a *MonolithicApp) Setup() error {
 	a.server = &http.Server{
 		Addr:         ":" + os.Getenv("PORT"),
 		Handler:      router,
-		WriteTimeout: 33 * time.Minute,
+		WriteTimeout: time.Minute,
 		ReadTimeout:  2 * time.Second,
-		IdleTimeout:  4 * time.Minute,
+		IdleTimeout:  2 * time.Minute,
 	}
 
 	return nil
