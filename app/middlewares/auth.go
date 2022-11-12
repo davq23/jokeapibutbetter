@@ -37,6 +37,7 @@ func (j *JWTAuth) AuthMiddleware(next http.Handler) http.Handler {
 		bearerAuthPair := strings.Split(r.Header.Get("Authorization"), " ")
 
 		if len(bearerAuthPair) != 2 {
+			w.WriteHeader(http.StatusForbidden)
 			formatter.WriteFormatted(w, libs.StandardReponse{
 				Status:  http.StatusForbidden,
 				Message: "Forbidden",
@@ -57,6 +58,7 @@ func (j *JWTAuth) AuthMiddleware(next http.Handler) http.Handler {
 		})
 
 		if err != nil || !token.Valid {
+			w.WriteHeader(http.StatusForbidden)
 			if err != nil {
 				j.logger.Println(err.Error())
 			} else {
