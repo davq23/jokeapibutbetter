@@ -27,6 +27,40 @@ func NewUser(userService services.UserInterface, logger *log.Logger, jwtSecret s
 	}
 }
 
+func (u *User) CurrentUser(w http.ResponseWriter, r *http.Request) {
+	formatter, okFormatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
+	userID, okUserID := r.Context().Value(middlewares.CurrentUserIDKey{}).(string)
+
+	if !okUserID || !okFormatter {
+		w.WriteHeader(http.StatusBadRequest)
+		u.logger.Println("Valid user or formatter body not found")
+		formatter.WriteFormatted(w, libs.StandardReponse{
+			Status:  http.StatusBadRequest,
+			Message: "Invalid request",
+		})
+		return
+	}
+
+	user, err := u.userService.FindByID(r.Context(), userID)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		u.logger.Println(err.Error())
+		formatter.WriteFormatted(w, libs.StandardReponse{
+			Status:  http.StatusBadRequest,
+			Message: "Invalid request",
+		})
+		return
+	}
+
+	user.Hash = ""
+
+	formatter.WriteFormatted(w, libs.StandardReponse{
+		Status: http.StatusOK,
+		Data:   user,
+	})
+}
+
 func (u *User) SayHello(w http.ResponseWriter, r *http.Request) {
 	formatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 
@@ -107,6 +141,8 @@ func (u *User) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := u.userService.FindByID(r.Context(), id)
+
+	user.Hash = ""
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

@@ -124,16 +124,18 @@ func (a *MonolithicApp) Setup() error {
 
 	getRoutes := router.Methods(http.MethodGet).Subrouter()
 
+	getRoutes.Handle(
+		"/users/whoiam",
+		authMiddlware.AuthMiddleware(http.HandlerFunc(uh.CurrentUser)),
+	)
 	getRoutes.HandleFunc(
 		"/jokes/{id:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}}",
 		jh.GetByID,
 	)
-
 	getRoutes.HandleFunc(
 		"/jokes",
 		jh.GetAll,
 	)
-
 	getRoutes.HandleFunc(
 		"/users/{id:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}}",
 		uh.GetOne,
