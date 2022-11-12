@@ -12,7 +12,7 @@ const IDRegexp = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA
 
 type Data struct {
 	ID         string     `json:"id,omitempty" xml:"id,attr,omitempty"`
-	AddedAt    *time.Time `json:"-"`
+	AddedAt    *time.Time `json:"added_at" xml:"added_at,attr,omitempty"`
 	ModifiedAt *time.Time `json:"-"`
 	DeletedAt  *time.Time `json:"-"`
 }

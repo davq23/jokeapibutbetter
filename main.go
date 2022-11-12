@@ -112,21 +112,26 @@ func (a *MonolithicApp) Setup() error {
 
 	userPostRoutes := postRoutes.PathPrefix("/users").Subrouter()
 	userPostRoutes.Use(userBodyValidator.ValidatorMiddleware)
-	userPostRoutes.HandleFunc("/", uh.Save)
+	userPostRoutes.HandleFunc("", uh.Save)
 
 	jokePostRoutes := postRoutes.PathPrefix("/jokes").Subrouter()
 	jokePostRoutes.Use(jokeBodyValidator.ValidatorMiddleware)
-	jokePostRoutes.HandleFunc("/", jh.Save)
+	jokePostRoutes.HandleFunc("", jh.Save)
 
 	ratingPostRoutes := postRoutes.PathPrefix("/ratings").Subrouter()
 	ratingPostRoutes.Use(ratingBodyValidator.ValidatorMiddleware)
-	ratingPostRoutes.HandleFunc("/", rh.Save)
+	ratingPostRoutes.HandleFunc("", rh.Save)
 
 	getRoutes := router.Methods(http.MethodGet).Subrouter()
 
 	getRoutes.HandleFunc(
 		"/jokes/{id:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}}",
 		jh.GetByID,
+	)
+
+	getRoutes.HandleFunc(
+		"/jokes",
+		jh.GetAll,
 	)
 
 	getRoutes.HandleFunc(

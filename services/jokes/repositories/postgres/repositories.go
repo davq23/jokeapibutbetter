@@ -22,7 +22,7 @@ func (j *Joke) GetByID(c context.Context, id string) (*data.Joke, error) {
 	joke := &data.Joke{}
 	statement, err := j.db.PrepareContext(
 		c,
-		"SELECT j.uuid, j.text, j.author_id, j.description, j.lang, u.username, u.email FROM jokes j JOIN users u ON j.author_id = u.uuid WHERE j.uuid = $1 AND j.deleted_at IS NULL",
+		"SELECT j.uuid, j.text, j.author_id, j.description, j.lang, j.added_at, u.username, u.email FROM jokes j JOIN users u ON j.author_id = u.uuid WHERE j.uuid = $1 AND j.deleted_at IS NULL",
 	)
 
 	if err != nil {
@@ -33,7 +33,7 @@ func (j *Joke) GetByID(c context.Context, id string) (*data.Joke, error) {
 
 	joke.User = &data.User{}
 
-	err = statement.QueryRowContext(c, id).Scan(&joke.ID, &joke.Text, &joke.AuthorID, &joke.Description, &joke.Language, &joke.User.Username, &joke.User.Email)
+	err = statement.QueryRowContext(c, id).Scan(&joke.ID, &joke.Text, &joke.AuthorID, &joke.Description, &joke.Language, &joke.AddedAt, &joke.User.Username, &joke.User.Email)
 
 	joke.User.ID = joke.AuthorID
 
@@ -44,8 +44,54 @@ func (j *Joke) GetByID(c context.Context, id string) (*data.Joke, error) {
 	return joke, nil
 }
 
-func (j *Joke) GetAll(c context.Context, limit uint64) ([]*data.Joke, error) {
-	return nil, nil
+func (j *Joke) GetAll(c context.Context, limit uint64, language string, direction uint64, addedAtOffset uint64) ([]*data.Joke, error) {
+	sqlSentence := "SELECT j.uuid, j.text, j.author_id, j.description, j.lang, j.added_at, u.username, u.email FROM jokes j JOIN users u ON j.author_id = u.uuid WHERE"
+	sqlSentence += " j.deleted_at IS NULL"
+
+	if language != "" {
+		sqlSentence += " AND j.lang = $1"
+	} else {
+		sqlSentence += " AND j.lang != $1"
+	}
+	if direction > 0 {
+		sqlSentence += " AND j.added_at >= TO_TIMESTAMP($2)"
+	} else {
+		sqlSentence += " AND j.added_at < TO_TIMESTAMP($2)"
+	}
+	sqlSentence += " ORDER BY j.added_at DESC"
+	statement, err := j.db.PrepareContext(c, sqlSentence)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer statement.Close()
+
+	rows, err := statement.QueryContext(c, language, addedAtOffset)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var jokes []*data.Joke = make([]*data.Joke, 0, limit)
+
+	for rows.Next() {
+		joke := &data.Joke{}
+
+		joke.User = &data.User{}
+
+		err = rows.Scan(&joke.ID, &joke.Text, &joke.AuthorID, &joke.Description, &joke.Language, &joke.AddedAt, &joke.User.Username, &joke.User.Email)
+
+		if err != nil {
+			return nil, err
+		}
+
+		jokes = append(jokes, joke)
+	}
+
+	return jokes, nil
 }
 
 func (j *Joke) Insert(c context.Context, joke *data.Joke) error {
