@@ -113,6 +113,7 @@ func (rt *Rating) Save(w http.ResponseWriter, r *http.Request) {
 	err := formatter.ReadFormatted(r.Body, rating)
 
 	if err != nil {
+		rt.logger.Println(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		formatter.WriteFormatted(w, libs.StandardReponse{
 			Status:  http.StatusBadRequest,
