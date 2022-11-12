@@ -19,7 +19,7 @@ func RunApp(app App) {
 	err := app.Setup()
 
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 	}
 
 	go app.Run()

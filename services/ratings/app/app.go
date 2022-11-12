@@ -33,14 +33,15 @@ func (a *App) Shutdown(ctx context.Context) error {
 
 func (a *App) Setup() error {
 	client := &http.Client{}
-	configService := appServices.NewConfig(os.Getenv("CONFIG_URL"), client, os.Getenv("INTERNAL_TOKEN"))
-	config, err := configService.Get(context.Background())
+	logger := log.New(os.Stdout, "ratings service - ", log.LstdFlags)
+	configService := appServices.NewConfig("http://localhost:8054", client, os.Getenv("INTERNAL_TOKEN"))
+	config, err := configService.Find(context.Background())
+	os.Setenv("TZ", config.Timezone)
 	if err != nil {
 		return err
 	}
 	config.FixValues()
-	os.Setenv("TZ", config.Timezone)
-	logger := log.New(os.Stdout, "users service - ", log.LstdFlags)
+	logger.Println("Configuration completed")
 	psqlInfo := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
 		config.DBUser, config.DBPassword, config.DBHost, config.DBName, config.SSLMode,
 	)

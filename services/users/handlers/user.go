@@ -8,18 +8,18 @@ import (
 	"github.com/davq23/jokeapibutbetter/app/data"
 	"github.com/davq23/jokeapibutbetter/app/libs"
 	"github.com/davq23/jokeapibutbetter/app/middlewares"
-	"github.com/davq23/jokeapibutbetter/services/users/services"
+	"github.com/davq23/jokeapibutbetter/app/services"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 )
 
 type User struct {
 	jwtSecret   string
-	userService *services.User
+	userService services.UserInterface
 	logger      *log.Logger
 }
 
-func NewUser(userService *services.User, logger *log.Logger, jwtSecret string) *User {
+func NewUser(userService services.UserInterface, logger *log.Logger, jwtSecret string) *User {
 	return &User{
 		jwtSecret:   jwtSecret,
 		userService: userService,

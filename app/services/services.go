@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -32,32 +33,32 @@ func NewJoke(apiUrl string, client *http.Client, authorizationToken string) *Jok
 	}
 }
 
-func (u Joke) GetByID(c context.Context, id string, formatter libs.Formatter) (*data.Joke, *libs.ApiError) {
+func (u Joke) FindByID(c context.Context, id string) (*data.Joke, error) {
+	formatter := &libs.JSONFormatter{}
+
 	response, err := u.makeRequest(http.MethodGet, "/jokes/"+id, u.authorizationToken, formatter, func() interface{} {
 		return &data.Joke{}
 	})
 
 	if err != nil {
-		return nil, &libs.ApiError{
-			Err: err,
-		}
+		return nil, err
 	}
 
 	if response.Status != http.StatusOK {
-		return nil, &libs.ApiError{
-			Err: fmt.Errorf("error: %d", response.Status),
-		}
+		return nil, fmt.Errorf("error: %d", response.Status)
 	}
 
 	joke, ok := response.Data.(*data.Joke)
 
 	if !ok {
-		return nil, &libs.ApiError{
-			Err: fmt.Errorf("error: %s", response.Data),
-		}
+		return nil, fmt.Errorf("error: %s", response.Data)
 	}
 
 	return joke, nil
+}
+
+func (j Joke) Save(c context.Context, joke *data.Joke) error {
+	return errors.New("unsupported method")
 }
 
 type User struct {
@@ -74,32 +75,37 @@ func NewUser(apiUrl string, client *http.Client, authorizationToken string) *Use
 	}
 }
 
-func (u User) GetByID(c context.Context, id string, formatter libs.Formatter) (*data.User, *libs.ApiError) {
+func (u User) FindByID(c context.Context, id string) (*data.User, error) {
+	formatter := &libs.JSONFormatter{}
 	response, err := u.makeRequest(http.MethodGet, "/users/"+id, u.authorizationToken, formatter, func() interface{} {
 		return &data.User{}
 	})
 
 	if err != nil {
-		return nil, &libs.ApiError{
-			Err: err,
-		}
+		return nil, err
 	}
 
 	if response.Status != http.StatusOK {
-		return nil, &libs.ApiError{
-			Err: fmt.Errorf("Error: %d", response.Status),
-		}
+		return nil, errors.New("invalid user")
 	}
 
 	user, ok := response.Data.(*data.User)
 
 	if !ok {
-		return nil, &libs.ApiError{
-			Err: fmt.Errorf("Error: %s", response.Data),
-		}
+		return nil, errors.New("invalid user")
 	}
 
 	return user, nil
+}
+
+func (u User) FindByEmail(c context.Context, email string) (*data.User, error) {
+	return nil, errors.New("unsupported method")
+}
+func (u User) AuthenticateUser(c context.Context, authRequest *libs.AuthRequest) (*data.User, error) {
+	return nil, errors.New("unsupported method")
+}
+func (u User) Save(c context.Context, user *data.User) error {
+	return errors.New("unsupported method")
 }
 
 func (u Service) makeRequest(method string, path string, token string, formatter libs.Formatter, getRequestedData GetRequestedData) (*libs.StandardReponse, error) {
@@ -164,7 +170,7 @@ func NewConfig(apiUrl string, client *http.Client, authorizationToken string) *C
 	}
 }
 
-func (c *Config) Get(ctx context.Context) (*libs.ConfigResponse, error) {
+func (c *Config) Find(ctx context.Context) (*libs.ConfigResponse, error) {
 	parsedResponse, err := c.Service.makeRequest(http.MethodGet, "/config", "", &libs.JSONFormatter{}, func() interface{} {
 		return &libs.ConfigResponse{}
 	})

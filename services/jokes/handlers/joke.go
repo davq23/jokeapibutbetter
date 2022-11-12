@@ -9,16 +9,16 @@ import (
 	"github.com/davq23/jokeapibutbetter/app/data"
 	"github.com/davq23/jokeapibutbetter/app/libs"
 	"github.com/davq23/jokeapibutbetter/app/middlewares"
-	"github.com/davq23/jokeapibutbetter/services/jokes/services"
+	"github.com/davq23/jokeapibutbetter/app/services"
 	"github.com/gorilla/mux"
 )
 
 type Joke struct {
-	jokeService *services.Joke
+	jokeService services.JokeInterface
 	logger      *log.Logger
 }
 
-func NewJoke(jokeService *services.Joke, logger *log.Logger) *Joke {
+func NewJoke(jokeService services.JokeInterface, logger *log.Logger) *Joke {
 	return &Joke{
 		jokeService: jokeService,
 		logger:      logger,

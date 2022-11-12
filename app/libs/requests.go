@@ -14,8 +14,8 @@ type StandardReponse struct {
 
 type AuthRequest struct {
 	XMLName         xml.Name `json:"-" xml:"auth"`
-	UsernameOrEmail string   `json:"user" xml:"user"`
-	Password        string   `json:"password" xml:"password"`
+	UsernameOrEmail string   `json:"user" xml:"user" validate:"required"`
+	Password        string   `json:"password" xml:"password" validate:"required"`
 }
 
 type AuthResponse struct {

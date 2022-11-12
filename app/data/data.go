@@ -29,7 +29,7 @@ type User struct {
 	Email    string   `json:"email" xml:"email" validate:"required,email"`
 	Username string   `json:"username" xml:"username" validate:"required"`
 	Hash     string   `json:"hash,omitempty" xml:"hash,omitempty" validate:"required"`
-	Roles    []string `json:"roles" xml:"roles>role"`
+	Roles    []string `json:"roles,omitempty" xml:"roles>role,omitempty"`
 	isHashed bool
 }
 

@@ -4,18 +4,17 @@ import (
 	"context"
 
 	"github.com/davq23/jokeapibutbetter/app/data"
-	"github.com/davq23/jokeapibutbetter/app/libs"
 	"github.com/davq23/jokeapibutbetter/app/services"
 	"github.com/davq23/jokeapibutbetter/services/ratings/repositories"
 )
 
 type Rating struct {
-	jokeService      *services.Joke
+	jokeService      services.JokeInterface
 	ratingRepository repositories.Rating
-	userService      *services.User
+	userService      services.UserInterface
 }
 
-func NewRating(jokeService *services.Joke, ratingRepository repositories.Rating, userService *services.User) *Rating {
+func NewRating(jokeService services.JokeInterface, ratingRepository repositories.Rating, userService services.UserInterface) *Rating {
 	return &Rating{
 		jokeService:      jokeService,
 		ratingRepository: ratingRepository,
@@ -24,52 +23,52 @@ func NewRating(jokeService *services.Joke, ratingRepository repositories.Rating,
 }
 
 func (rt *Rating) FindByJokeID(ctx context.Context, jokeID string) ([]*data.Rating, error) {
-	_, err := rt.jokeService.GetByID(ctx, jokeID, libs.JSONFormatter{})
+	_, err := rt.jokeService.FindByID(ctx, jokeID)
 
 	if err != nil {
-		return nil, err.Err
+		return nil, err
 	}
 
 	return rt.ratingRepository.GetAllByJokeID(ctx, jokeID)
 }
 
 func (rt *Rating) FindByUserID(ctx context.Context, userID string) ([]*data.Rating, error) {
-	_, err := rt.userService.GetByID(ctx, userID, libs.JSONFormatter{})
+	_, err := rt.userService.FindByID(ctx, userID)
 
 	if err != nil {
-		return nil, err.Err
+		return nil, err
 	}
 
 	return rt.ratingRepository.GetAllByUserID(ctx, userID)
 }
 
 func (rt *Rating) FindByUserIDAndJokeID(ctx context.Context, userID string, jokeID string) (*data.Rating, error) {
-	_, err := rt.jokeService.GetByID(ctx, jokeID, libs.JSONFormatter{})
+	_, err := rt.jokeService.FindByID(ctx, jokeID)
 
 	if err != nil {
-		return nil, err.Err
+		return nil, err
 	}
 
-	_, err = rt.userService.GetByID(ctx, userID, libs.JSONFormatter{})
+	_, err = rt.userService.FindByID(ctx, userID)
 
 	if err != nil {
-		return nil, err.Err
+		return nil, err
 	}
 
 	return rt.ratingRepository.GetByJokeIDAndUserID(ctx, jokeID, userID)
 }
 
 func (rt *Rating) Save(ctx context.Context, rating *data.Rating) error {
-	_, err := rt.jokeService.GetByID(ctx, rating.JokeID, libs.JSONFormatter{})
+	_, err := rt.jokeService.FindByID(ctx, rating.JokeID)
 
 	if err != nil {
-		return err.Err
+		return err
 	}
 
-	_, err = rt.userService.GetByID(ctx, rating.UserID, libs.JSONFormatter{})
+	_, err = rt.userService.FindByID(ctx, rating.UserID)
 
 	if err != nil {
-		return err.Err
+		return err
 	}
 
 	if rating.ID == "" {

@@ -52,7 +52,7 @@ func (u User) Save(c context.Context, user *data.User) error {
 	currentUser, err := u.userRepository.FetchByID(c, currentUserID)
 
 	if !okCurrent || err != nil {
-		return errors.New("User already in DB")
+		return errors.New("currentUserID not found")
 	}
 
 	if !slices.Contains(currentUser.Roles, data.USER_ROLE_ADMIN) {
@@ -66,7 +66,7 @@ func (u User) Save(c context.Context, user *data.User) error {
 		_, err = u.FindByEmail(c, user.Email)
 
 		if err == nil {
-			return errors.New("User already in DB")
+			return errors.New("user already in DB")
 		}
 
 		return u.userRepository.Insert(c, user)
