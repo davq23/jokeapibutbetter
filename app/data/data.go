@@ -11,8 +11,8 @@ import (
 const IDRegexp = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}"
 
 type Data struct {
-	ID         string     `json:"id,omitempty" xml:"id,attr,omitempty"`
-	AddedAt    *time.Time `json:"added_at,omitempty" xml:"added_at,attr,omitempty"`
+	ID         string     `json:"id,omitempty" xml:"id,attr,omitempty" yaml:"id"`
+	AddedAt    *time.Time `json:"added_at,omitempty" xml:"added_at,attr,omitempty" yaml:"added_at"`
 	ModifiedAt *time.Time `json:"-"`
 	DeletedAt  *time.Time `json:"-"`
 }
@@ -24,12 +24,12 @@ func (d *Data) GenerateID() {
 type UserDataKey struct{}
 
 type User struct {
-	XMLName xml.Name `json:"-" xml:"user"`
+	XMLName xml.Name `json:"-" xml:"user" yaml:"-"`
 	Data
-	Email    string   `json:"email" xml:"email" validate:"required,email"`
-	Username string   `json:"username" xml:"username" validate:"required"`
-	Hash     string   `json:"hash,omitempty" xml:"hash,omitempty" validate:"required"`
-	Roles    []string `json:"roles,omitempty" xml:"roles>role,omitempty"`
+	Email    string   `json:"email" xml:"email" yaml:"email" validate:"required,email"`
+	Username string   `json:"username" xml:"username" yaml:"username" validate:"required"`
+	Hash     string   `json:"hash,omitempty" xml:"hash,omitempty" yaml:"hash,omitempty" validate:"required"`
+	Roles    []string `json:"roles,omitempty" xml:"roles>role,omitempty" yaml:"roles,omitempty"`
 	isHashed bool
 }
 
@@ -49,21 +49,21 @@ func (u *User) HashPassword() (err error) {
 }
 
 type Joke struct {
-	XMLName xml.Name `json:"-" xml:"joke"`
+	XMLName xml.Name `json:"-" xml:"joke" yaml:"-"`
 	Data
-	Description string   `json:"description" xml:"description" validate:"max=255"`
-	Text        string   `json:"text" xml:"text" validate:"required,max=255"`
-	Tags        []string `json:"tags,omitempty" xml:"tags,omitempty"`
-	AuthorID    string   `json:"author_id" xml:"author_id,attr" validate:"required,uuid"`
-	User        *User    `json:"author,omitempty" xml:"user,omitempty"`
-	Language    string   `json:"lang" xml:"lang,attr" validate:"required,bcp47_language_tag"`
+	Description string   `json:"description" xml:"description" yaml:"description" validate:"max=255"`
+	Text        string   `json:"text" xml:"text" yaml:"text" validate:"required,max=255"`
+	Tags        []string `json:"tags,omitempty" yaml:"tags,omitempty" xml:"tags,omitempty"`
+	AuthorID    string   `json:"author_id" xml:"author_id,attr" yaml:"author_id" validate:"required,uuid"`
+	User        *User    `json:"user,omitempty" yaml:"user,omitempty" xml:"user,omitempty"`
+	Language    string   `json:"lang" xml:"lang,attr" yaml:"lang" validate:"required,bcp47_language_tag"`
 }
 
 type Rating struct {
-	XMLName xml.Name `json:"-" xml:"rating"`
+	XMLName xml.Name `json:"-" xml:"rating" yaml:"-"`
 	Data
-	Stars   float64 `json:"stars" xml:"start,attr" validate:"required,lte=5,gte=0"`
-	UserID  string  `json:"user_id" xml:"user_id,attr" validate:"required,uuid"`
-	JokeID  string  `json:"joke_id" xml:"joke_id,attr" validate:"required,uuid"`
-	Comment string  `json:"comment" xml:",cdata" validate:"max=255"`
+	Stars   float64 `json:"stars" xml:"start,attr" yaml:"stars" validate:"required,lte=5,gte=0"`
+	UserID  string  `json:"user_id" xml:"user_id,attr" yaml:"user_id" validate:"required,uuid"`
+	JokeID  string  `json:"joke_id" xml:"joke_id,attr" yaml:"joke_id" validate:"required,uuid"`
+	Comment string  `json:"comment" xml:",cdata" yaml:"comment" validate:"max=255"`
 }

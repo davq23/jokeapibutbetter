@@ -6,23 +6,23 @@ import (
 )
 
 type StandardReponse struct {
-	XMLName xml.Name    `json:"-" xml:"response"`
-	Status  int64       `json:"status" xml:"status,attr"`
-	Data    interface{} `json:"data,omitempty" xml:"data>data"`
-	Message string      `json:"message,omitempty" xml:"message,omitempty"`
+	XMLName xml.Name    `json:"-" xml:"response" yaml:"-"`
+	Status  int64       `json:"status" xml:"status,attr" yaml:"status"`
+	Data    interface{} `json:"data,omitempty" xml:"data>data" yaml:"data,omitempty"`
+	Message string      `json:"message,omitempty" xml:"message,omitempty" yaml:"message,omitempty"`
 }
 
 type AuthRequest struct {
-	XMLName         xml.Name `json:"-" xml:"auth"`
-	UsernameOrEmail string   `json:"user" xml:"user" validate:"required"`
-	Password        string   `json:"password" xml:"password" validate:"required"`
+	XMLName         xml.Name `json:"-" xml:"auth" yaml:"-"`
+	UsernameOrEmail string   `json:"user" xml:"user" yaml:"user" validate:"required"`
+	Password        string   `json:"password" xml:"password" yaml:"password" validate:"required"`
 }
 
 type AuthResponse struct {
-	XMLName  xml.Name `json:"-" xml:"auth"`
-	UserID   string   `json:"user_id" xml:"user_id,attr"`
-	Username string   `json:"username" xml:"username,attr"`
-	Token    string   `json:"token" xml:",cdata"`
+	XMLName  xml.Name `json:"-" xml:"auth" yaml:"-"`
+	UserID   string   `json:"user_id" xml:"user_id,attr" yaml:"user_id"`
+	Username string   `json:"username" xml:"username,attr" yaml:"username"`
+	Token    string   `json:"token" xml:",cdata" yaml:"token"`
 }
 
 type ConfigResponse struct {

@@ -24,6 +24,9 @@ func FormatMiddleware(next http.Handler) http.Handler {
 			case libs.XML_FORMAT:
 				w.Header().Set(textproto.CanonicalMIMEHeaderKey("Content-Type"), "application/xml")
 				formatter = &libs.XMLFormatter{}
+			case libs.YAML_FORMAT:
+				w.Header().Set(textproto.CanonicalMIMEHeaderKey("Content-Type"), "application/yaml")
+				formatter = &libs.YAMLFormatter{}
 			default:
 				w.Header().Set(textproto.CanonicalMIMEHeaderKey("Content-Type"), "text/plain")
 				w.WriteHeader(http.StatusBadRequest)
@@ -31,6 +34,7 @@ func FormatMiddleware(next http.Handler) http.Handler {
 				return
 			}
 		} else {
+			w.Header().Set(textproto.CanonicalMIMEHeaderKey("Content-Type"), "application/json")
 			formatter = &libs.JSONFormatter{}
 		}
 
