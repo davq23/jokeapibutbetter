@@ -53,7 +53,7 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 	} else {
 		sqlSentence += " AND j.lang != $1"
 	}
-	if direction > 0 {
+	if direction == 0 {
 		sqlSentence += " AND j.added_at >= TO_TIMESTAMP($2)"
 	} else {
 		sqlSentence += " AND j.added_at < TO_TIMESTAMP($2)"
