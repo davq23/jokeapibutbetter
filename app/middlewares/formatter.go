@@ -25,7 +25,7 @@ func FormatMiddleware(next http.Handler) http.Handler {
 				w.Header().Set(textproto.CanonicalMIMEHeaderKey("Content-Type"), "application/xml")
 				formatter = &libs.XMLFormatter{}
 			case libs.YAML_FORMAT:
-				w.Header().Set(textproto.CanonicalMIMEHeaderKey("Content-Type"), "application/yaml")
+				w.Header().Set(textproto.CanonicalMIMEHeaderKey("Content-Type"), "application/x-yaml")
 				formatter = &libs.YAMLFormatter{}
 			default:
 				w.Header().Set(textproto.CanonicalMIMEHeaderKey("Content-Type"), "text/plain")
