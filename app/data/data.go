@@ -53,7 +53,7 @@ type Joke struct {
 	Data
 	Description string   `json:"description" xml:",cdata" validate:"max=255"`
 	Text        string   `json:"text" xml:",cdata" validate:"required,max=255"`
-	Tags        []string `json:"tags" xml:"tags"`
+	Tags        []string `json:"tags,omitempty" xml:"tags,omitempty"`
 	AuthorID    string   `json:"author_id" xml:"author_id,attr" validate:"required,uuid"`
 	User        *User    `json:"author,omitempty" xml:"user,omitempty"`
 	Language    string   `json:"lang" xml:"lang,attr" validate:"required,bcp47_language_tag"`
