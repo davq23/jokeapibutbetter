@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"net/http"
+	"net/textproto"
 
 	"github.com/davq23/jokeapibutbetter/app/libs"
 )
@@ -18,13 +19,13 @@ func FormatMiddleware(next http.Handler) http.Handler {
 		if values.Has("format") {
 			switch values.Get("format") {
 			case libs.JSON_FORMAT:
-				w.Header().Add("Content-Type", "application/json")
+				w.Header().Set(textproto.CanonicalMIMEHeaderKey("Content-Type"), "application/json")
 				formatter = &libs.JSONFormatter{}
 			case libs.XML_FORMAT:
-				w.Header().Add("Content-Type", "application/xml")
+				w.Header().Set(textproto.CanonicalMIMEHeaderKey("Content-Type"), "application/xml")
 				formatter = &libs.XMLFormatter{}
 			default:
-				w.Header().Add("Content-Type", "text/plain")
+				w.Header().Set(textproto.CanonicalMIMEHeaderKey("Content-Type"), "text/plain")
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte("Unsupported format"))
 				return

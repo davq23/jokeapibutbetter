@@ -33,7 +33,7 @@ func NewJoke(apiUrl string, client *http.Client, authorizationToken string) *Jok
 	}
 }
 
-func (u Joke) Find(c context.Context, limit uint64, lang string, direction uint64, addedAtOffset uint64) ([]*data.Joke, error) {
+func (u Joke) FindAll(c context.Context, limit uint64, lang string, direction uint64, addedAtOffset uint64) ([]*data.Joke, error) {
 	return nil, errors.New("unsupported method")
 }
 
