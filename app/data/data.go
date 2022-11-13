@@ -51,8 +51,8 @@ func (u *User) HashPassword() (err error) {
 type Joke struct {
 	XMLName xml.Name `json:"-" xml:"joke"`
 	Data
-	Description string   `json:"description" xml:",cdata" validate:"max=255"`
-	Text        string   `json:"text" xml:",cdata" validate:"required,max=255"`
+	Description string   `json:"description" xml:"description" validate:"max=255"`
+	Text        string   `json:"text" xml:"text" validate:"required,max=255"`
 	Tags        []string `json:"tags,omitempty" xml:"tags,omitempty"`
 	AuthorID    string   `json:"author_id" xml:"author_id,attr" validate:"required,uuid"`
 	User        *User    `json:"author,omitempty" xml:"user,omitempty"`
