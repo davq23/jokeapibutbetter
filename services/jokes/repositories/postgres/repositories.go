@@ -51,10 +51,14 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 	if len(language) > 2 {
 		if language != "" {
 			sqlSentence += " AND j.lang = $1"
+		} else {
+			sqlSentence += " AND j.lang != $1"
 		}
 	} else {
 		if language != "" {
 			sqlSentence += " AND j.lang LIKE CONCAT(cast($1 as varchar(6)), '%')"
+		} else {
+			sqlSentence += " AND j.lang != $1"
 		}
 	}
 
