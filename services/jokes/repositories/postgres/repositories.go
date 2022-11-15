@@ -48,11 +48,16 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 	sqlSentence := "SELECT j.uuid, j.text, j.author_id, j.description, j.lang, j.added_at, u.username, u.email FROM jokes j JOIN users u ON j.author_id = u.uuid WHERE"
 	sqlSentence += " j.deleted_at IS NULL"
 
-	if language != "" {
-		sqlSentence += " AND j.lang = $1"
+	if len(language) > 2 {
+		if language != "" {
+			sqlSentence += " AND j.lang = $1"
+		}
 	} else {
-		sqlSentence += " AND j.lang != $1"
+		if language != "" {
+			sqlSentence += " AND j.lang LIKE '$1%'"
+		}
 	}
+
 	if direction == 0 {
 		sqlSentence += " AND j.added_at >= TO_TIMESTAMP($2)"
 	} else {
