@@ -62,6 +62,10 @@ func (a *MonolithicApp) Setup() error {
 		SSLMode:           os.Getenv("SSL_MODE"),
 	}
 
+	if config.Timezone != "" {
+		os.Setenv("TZ", config.Timezone)
+	}
+
 	psqlInfo := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
 		config.DBUser, config.DBPassword, config.DBHost, config.DBName, config.SSLMode,
 	)
