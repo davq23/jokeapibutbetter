@@ -54,7 +54,7 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 		}
 	} else {
 		if language != "" {
-			sqlSentence += " AND j.lang LIKE CONCAT($1, '%')"
+			sqlSentence += " AND j.lang LIKE CONCAT(cast($1 as varchar(6)), '%')"
 		}
 	}
 
