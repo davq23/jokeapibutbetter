@@ -27,7 +27,7 @@ export const useUserStore = defineStore('user', {
 
         whoIAm() {
             const userService = new UserService(
-                import.meta.env.VITE_JOKEAPI_URL ?? '/',
+                import.meta.env.VITE_JOKEAPI_URL ?? 'api',
                 localStorage.getItem('token'),
             );
 

@@ -34,7 +34,7 @@ export default defineComponent({
     methods: {
         getJokes() {
             const jokeService = new JokeService(
-                import.meta.env.VITE_JOKEAPI_URL ?? 'api/',
+                import.meta.env.VITE_JOKEAPI_URL ?? 'api',
                 localStorage.getItem('token'),
             );
 
