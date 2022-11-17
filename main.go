@@ -49,6 +49,7 @@ func (a *MonolithicApp) Setup() error {
 	fsHome := http.FileServer(http.Dir("dist"))
 
 	frontendRoutes.Handle("/{anything:[.*]+}", http.StripPrefix("/dashboard/", fsHome))
+	frontendRoutes.Handle("/", http.StripPrefix("/dashboard/", fsHome))
 
 	apiRoutes := router.PathPrefix("/api").Subrouter().StrictSlash(true)
 	apiRoutes.Use(middlewares.FormatMiddleware)
