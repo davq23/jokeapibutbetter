@@ -42,15 +42,15 @@ func (a *MonolithicApp) Shutdown(ctx context.Context) error {
 func (a *MonolithicApp) Setup() error {
 	godotenv.Load("local.env")
 
-	router := mux.NewRouter()
+	router := mux.NewRouter().StrictSlash(true)
 
-	frontendRoutes := router.PathPrefix("/dashboard").Methods("GET").Subrouter().StrictSlash(false)
+	frontendRoutes := router.PathPrefix("/dashboard/").Methods("GET").Subrouter()
 
-	fsHome := http.FileServer(http.Dir("/dist"))
+	fsHome := http.FileServer(http.Dir("./dist"))
 
 	frontendRoutes.Handle("/", fsHome)
 
-	apiRoutes := router.PathPrefix("/api").Subrouter().StrictSlash(false)
+	apiRoutes := router.PathPrefix("/api").Subrouter()
 	apiRoutes.Use(middlewares.FormatMiddleware)
 
 	config := libs.ConfigResponse{
