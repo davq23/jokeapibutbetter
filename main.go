@@ -44,13 +44,13 @@ func (a *MonolithicApp) Setup() error {
 
 	router := mux.NewRouter().StrictSlash(true)
 
-	frontendRoutes := router.PathPrefix("/dashboard/").Methods("GET").Subrouter()
+	frontendRoutes := router.PathPrefix("/dashboard/").Methods("GET").Subrouter().StrictSlash(true)
 
 	fsHome := http.FileServer(http.Dir("dist"))
 
-	frontendRoutes.Handle("/", http.StripPrefix("/dashboard/", fsHome))
+	frontendRoutes.Handle("/{anything:[.*]+}", http.StripPrefix("/dashboard/", fsHome))
 
-	apiRoutes := router.PathPrefix("/api").Subrouter()
+	apiRoutes := router.PathPrefix("/api").Subrouter().StrictSlash(true)
 	apiRoutes.Use(middlewares.FormatMiddleware)
 
 	config := libs.ConfigResponse{
