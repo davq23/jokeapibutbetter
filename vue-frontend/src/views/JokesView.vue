@@ -10,6 +10,7 @@
 import Config from '@/config/Config';
 import type Joke from '@/data/joke';
 import type StandardResponse from '@/libs/standard';
+import JokeList from "@/components/jokes/JokeList.vue"
 import { JokeService } from '@/services/joke.service';
 import { defineComponent } from 'vue';
 
@@ -21,7 +22,9 @@ interface JokeViewData {
 }
 
 export default defineComponent({
-    components: {},
+    components: {
+        JokeList,
+    },
 
     data(): JokeViewData {
         return {
