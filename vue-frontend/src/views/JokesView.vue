@@ -7,6 +7,7 @@
 </template>
 
 <script lang="ts">
+import Config from '@/config/Config';
 import type Joke from '@/data/joke';
 import type StandardResponse from '@/libs/standard';
 import { JokeService } from '@/services/joke.service';
@@ -34,7 +35,7 @@ export default defineComponent({
     methods: {
         getJokes() {
             const jokeService = new JokeService(
-                import.meta.env.VITE_JOKEAPI_URL ?? 'api',
+                Config.apiUrl,
                 localStorage.getItem('token'),
             );
 
