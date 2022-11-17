@@ -44,7 +44,14 @@ func (a *MonolithicApp) Setup() error {
 
 	router := mux.NewRouter()
 
-	router.Use(middlewares.FormatMiddleware)
+	frontendRoutes := router.PathPrefix("dashboard").Methods("GET").Subrouter()
+
+	fsHome := http.FileServer(http.Dir("/dist"))
+
+	frontendRoutes.Handle("", fsHome)
+
+	apiRoutes := router.PathPrefix("/api").Subrouter()
+	apiRoutes.Use(middlewares.FormatMiddleware)
 
 	config := libs.ConfigResponse{
 		JokeServiceURL:    os.Getenv("JOKE_URL"),
@@ -103,13 +110,11 @@ func (a *MonolithicApp) Setup() error {
 		return &data.Rating{}
 	})
 
-	fsHome := http.FileServer(http.Dir("/dist"))
-
 	uh := userHandlers.NewUser(userService, log.New(os.Stdout, "user api -", log.LstdFlags), config.APISecret)
 	jh := jokeHandlers.NewJoke(jokeService, log.New(os.Stdout, "joke api -", log.LstdFlags))
 	rh := ratingHandlers.NewRating(ratingService, log.New(os.Stdout, "rating api -", log.LstdFlags))
 
-	postRoutes := router.Methods(http.MethodPost).Subrouter()
+	postRoutes := apiRoutes.Methods(http.MethodPost).Subrouter()
 	postRoutes.Use(authMiddlware.AuthMiddleware)
 
 	authPostRoutes := router.Methods("POST").PathPrefix("/auth").Subrouter()
@@ -128,7 +133,7 @@ func (a *MonolithicApp) Setup() error {
 	ratingPostRoutes.Use(ratingBodyValidator.ValidatorMiddleware)
 	ratingPostRoutes.HandleFunc("", rh.Save)
 
-	getRoutes := router.Methods(http.MethodGet).Subrouter()
+	getRoutes := apiRoutes.Methods(http.MethodGet).Subrouter()
 
 	getRoutes.Handle(
 		"/users/whoiam",
@@ -158,8 +163,6 @@ func (a *MonolithicApp) Setup() error {
 		"/jokes/{joke_id:"+data.IDRegexp+"}/users/{user_id:"+data.IDRegexp+"}/rating",
 		rh.GetByJokeIDAndUserID,
 	)
-
-	getRoutes.PathPrefix("/dashboard").Subrouter().Handle("", fsHome)
 
 	a.server = &http.Server{
 		Addr:         ":" + os.Getenv("PORT"),
