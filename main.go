@@ -41,21 +41,17 @@ func (a *MonolithicApp) Shutdown(ctx context.Context) error {
 
 func (a *MonolithicApp) Setup() error {
 	godotenv.Load("local.env")
+	fsHome := http.FileServer(http.Dir("dist"))
 
 	router := mux.NewRouter().StrictSlash(true)
 
-	frontendRoutes := router.PathPrefix("/dashboard/").Methods("GET").Subrouter().StrictSlash(true)
-
-	fsHome := http.FileServer(http.Dir("dist"))
-
-	frontendRoutes.Handle("/{anything:[.*]+}", http.StripPrefix("/dashboard/", fsHome))
-	frontendRoutes.Handle("/", http.StripPrefix("/dashboard/", fsHome))
+	router.PathPrefix("/dashboard/").Methods("GET").Handler(http.StripPrefix("/dashboard/", fsHome))
 
 	apiRoutes := router.PathPrefix("/api").Subrouter().StrictSlash(true)
 	apiRoutes.Use(middlewares.FormatMiddleware)
 
 	// Static files
-	router.Handle("/assets/{anything:[.*]+}", fsHome)
+	router.PathPrefix("/assets").Methods("GET").Handler(fsHome)
 
 	config := libs.ConfigResponse{
 		JokeServiceURL:    os.Getenv("JOKE_URL"),
