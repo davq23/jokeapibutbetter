@@ -103,6 +103,8 @@ func (a *MonolithicApp) Setup() error {
 		return &data.Rating{}
 	})
 
+	fsHome := http.FileServer(http.Dir("/dist"))
+
 	uh := userHandlers.NewUser(userService, log.New(os.Stdout, "user api -", log.LstdFlags), config.APISecret)
 	jh := jokeHandlers.NewJoke(jokeService, log.New(os.Stdout, "joke api -", log.LstdFlags))
 	rh := ratingHandlers.NewRating(ratingService, log.New(os.Stdout, "rating api -", log.LstdFlags))
@@ -157,6 +159,8 @@ func (a *MonolithicApp) Setup() error {
 		rh.GetByJokeIDAndUserID,
 	)
 
+	getRoutes.PathPrefix("/dashboard").Subrouter().Handle("", fsHome)
+
 	a.server = &http.Server{
 		Addr:         ":" + os.Getenv("PORT"),
 		Handler:      router,
@@ -169,7 +173,13 @@ func (a *MonolithicApp) Setup() error {
 }
 
 func (a *MonolithicApp) Run() error {
-	return a.server.ListenAndServe()
+	err := a.server.ListenAndServe()
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	return err
 }
 
 func main() {
