@@ -54,6 +54,9 @@ func (a *MonolithicApp) Setup() error {
 	apiRoutes := router.PathPrefix("/api").Subrouter().StrictSlash(true)
 	apiRoutes.Use(middlewares.FormatMiddleware)
 
+	// Static files
+	router.Handle("/assets", fsHome)
+
 	config := libs.ConfigResponse{
 		JokeServiceURL:    os.Getenv("JOKE_URL"),
 		JokeServicePort:   os.Getenv("JOKE_PORT"),
