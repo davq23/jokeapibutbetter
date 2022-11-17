@@ -19,7 +19,7 @@ export class JokeService extends Service {
         params.append('direction', direction.toString());
 
         return this.sendRequest(
-            `/jokes?${params.toString()}`,
+            `jokes?${params.toString()}`,
             'GET',
             new Headers(),
             null,
