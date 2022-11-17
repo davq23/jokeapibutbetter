@@ -55,7 +55,7 @@ func (a *MonolithicApp) Setup() error {
 	apiRoutes.Use(middlewares.FormatMiddleware)
 
 	// Static files
-	router.Handle("/assets", fsHome)
+	router.Handle("/assets/{anything:[.*]+}", fsHome)
 
 	config := libs.ConfigResponse{
 		JokeServiceURL:    os.Getenv("JOKE_URL"),
