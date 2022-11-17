@@ -46,9 +46,9 @@ func (a *MonolithicApp) Setup() error {
 
 	frontendRoutes := router.PathPrefix("/dashboard/").Methods("GET").Subrouter()
 
-	fsHome := http.FileServer(http.Dir("./dist"))
+	fsHome := http.FileServer(http.Dir("dist"))
 
-	frontendRoutes.Handle("/", fsHome)
+	frontendRoutes.Handle("/", http.StripPrefix("/dashboard/", fsHome))
 
 	apiRoutes := router.PathPrefix("/api").Subrouter()
 	apiRoutes.Use(middlewares.FormatMiddleware)
