@@ -43,8 +43,11 @@ func (a *App) setupStaticRoutes(router *mux.Router) {
 	directory := os.DirFS("dist")
 	fsHome := http.FileServer(http.FS(directory))
 
+	// Asset routes
+	router.PathPrefix("/assets").Methods("GET").Handler(fsHome)
+
 	// Main routes
-	router.PathPrefix("/").Methods("GET").Handler(http.StripPrefix("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.PathPrefix("/").Methods("GET").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		file, err := directory.Open("index.html")
 
 		if err != nil {
@@ -60,10 +63,7 @@ func (a *App) setupStaticRoutes(router *mux.Router) {
 		}
 
 		http.ServeContent(w, r, fileStat.Name(), fileStat.ModTime(), file.(io.ReadSeekCloser))
-	})))
-
-	// Asset routes
-	router.PathPrefix("/assets").Methods("GET").Handler(fsHome)
+	}))
 }
 
 func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
