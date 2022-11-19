@@ -83,6 +83,12 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	// Global in-out formatting middleware for JSON, XML, YAML
 	apiRoutes.Use(middlewares.FormatMiddleware)
 
+	apiRoutes.Use(mux.CORSMethodMiddleware(apiRoutes))
+
+	apiRoutes.Methods(http.MethodOptions).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
 	// Repositories
 	userRepository := userPostgres.NewUser(a.db)
 	jokeRepository := jokePostgres.NewJoke(a.db)
@@ -103,7 +109,7 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	postRoutes.Use(authMiddlware.AuthMiddleware)
 
 	// - Login (different validator)
-	authPostRoutes := router.Methods(http.MethodPost).PathPrefix("/auth").Subrouter()
+	authPostRoutes := apiRoutes.Methods(http.MethodPost).PathPrefix("/auth").Subrouter()
 	authPostRoutes.Use(authBodyValidator.ValidatorMiddleware)
 	authPostRoutes.HandleFunc("/login", uh.AuthenticateUser)
 

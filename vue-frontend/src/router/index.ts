@@ -1,7 +1,10 @@
+import { useUserStore } from '@/stores/user';
 import JokesView from '@/views/JokesView.vue';
-import { createRouter, createWebHistory } from 'vue-router';
-
-import HomeView from '../views/HomeView.vue';
+import {
+    createRouter,
+    createWebHistory,
+    type RouteLocationNormalized,
+} from 'vue-router';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,7 +22,20 @@ const router = createRouter({
             // which is lazy-loaded when the route is visited.
             component: () => import('../views/AboutView.vue'),
         },
+        {
+            path: '/login',
+            name: 'login',
+            component: () => import('../views/LoginView.vue'),
+        },
     ],
 });
+
+router.beforeResolve(
+    async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
+        const user = useUserStore();
+
+        user.whoIAm();
+    },
+);
 
 export default router;

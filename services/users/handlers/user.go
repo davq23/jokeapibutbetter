@@ -122,6 +122,7 @@ func (u *User) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	formatter.WriteFormatted(w, libs.StandardReponse{Status: http.StatusOK, Data: libs.AuthResponse{
 		Token:    token,
 		UserID:   user.ID,
+		Email:    user.Email,
 		Username: user.Username,
 	}})
 }

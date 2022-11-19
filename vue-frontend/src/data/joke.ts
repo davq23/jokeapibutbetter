@@ -1,3 +1,5 @@
+import type { User } from './user';
+
 export default interface Joke {
     id: string;
     author_id: string;
@@ -5,4 +7,5 @@ export default interface Joke {
     text: string;
     added_at: string;
     lang: string;
+    user: User | undefined;
 }
