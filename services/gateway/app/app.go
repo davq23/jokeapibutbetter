@@ -21,7 +21,7 @@ func (a *App) Shutdown(ctx context.Context) error {
 
 func (a *App) Setup() error {
 	configService := appServices.NewConfig(os.Getenv("CONFIG_URL"), &http.Client{}, os.Getenv("INTERNAL_TOKEN"))
-	config, err := configService.Get(context.Background())
+	config, err := configService.Find(context.Background())
 	if err != nil {
 		return err
 	}
