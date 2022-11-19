@@ -21,7 +21,7 @@
             </v-row>
             <v-row>
                 <v-col>
-                    <v-btn type="submit">Enter</v-btn>
+                    <v-btn type="submit" color="primary">Enter</v-btn>
                 </v-col>
             </v-row>
         </v-container>
@@ -57,7 +57,13 @@ export default defineComponent({
     methods: {
         onSubmit(event: Event) {
             event.preventDefault();
-            this.user.login(this.usernameOrEmail, this.password);
+            this.user
+                .login(this.usernameOrEmail, this.password)
+                .then((response) => {
+                    if (response.status === 200) {
+                        this.$emit('redirect', 'jokes');
+                    }
+                });
         },
     },
 

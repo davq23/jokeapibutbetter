@@ -41,6 +41,7 @@ type ConfigResponse struct {
 	APISecret         string   `json:"api_secret" xml:"api_secret" yaml:"api_secret"`
 	Timezone          string   `json:"timezone" xml:"timezone" yaml:"timezone"`
 	SSLMode           string   `json:"ssl_mode" xml:"ssl_mode" yaml:"ssl_mode"`
+	CORSDomains       string   `json:"cors_domains" xml:"cors_domains" yaml:"cors_domains"`
 }
 
 func (cr *ConfigResponse) FixValues() {

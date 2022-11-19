@@ -1,5 +1,6 @@
 <template>
-    <login-form></login-form>
+    <login-form
+        @redirect="(route) => $router.replace({ name: route })"></login-form>
 </template>
 
 <script lang="ts">

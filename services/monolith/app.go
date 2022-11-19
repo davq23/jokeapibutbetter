@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/davq23/jokeapibutbetter/app/data"
@@ -83,7 +84,15 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	// Global in-out formatting middleware for JSON, XML, YAML
 	apiRoutes.Use(middlewares.FormatMiddleware)
 
-	apiRoutes.Use(mux.CORSMethodMiddleware(apiRoutes))
+	apiRoutes.Use(func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set(http.CanonicalHeaderKey("Access-Control-Allow-Headers"), "Authorization")
+			w.Header().Set(http.CanonicalHeaderKey("Access-Control-Allow-Methods"), strings.Join([]string{http.MethodPost, http.MethodGet}, ","))
+			w.Header().Set(http.CanonicalHeaderKey("Access-Control-Allow-Origin"), config.CORSDomains)
+
+			h.ServeHTTP(w, r)
+		})
+	})
 
 	apiRoutes.Methods(http.MethodOptions).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -168,6 +177,7 @@ func (a *App) Setup() error {
 		Timezone:          os.Getenv("TIMEZONE"),
 		APISecret:         os.Getenv("API_SECRET"),
 		SSLMode:           os.Getenv("SSL_MODE"),
+		CORSDomains:       os.Getenv("CORS_DOMAINS"),
 	}
 
 	if config.Timezone != "" {
