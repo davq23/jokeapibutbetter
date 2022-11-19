@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -39,10 +40,27 @@ func (a *App) Shutdown(ctx context.Context) error {
 }
 
 func (a *App) setupStaticRoutes(router *mux.Router) {
-	fsHome := http.FileServer(http.Dir("dist"))
+	directory := os.DirFS("dist")
+	fsHome := http.FileServer(http.FS(directory))
 
 	// Main routes
-	router.PathPrefix("/").Methods("GET").Handler(http.StripPrefix("/", fsHome))
+	router.PathPrefix("/").Methods("GET").Handler(http.StripPrefix("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		file, err := directory.Open("index.html")
+
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		fileStat, err := file.Stat()
+
+		if err != nil {
+			w.WriteHeader(http.StatusFailedDependency)
+			return
+		}
+
+		http.ServeContent(w, r, fileStat.Name(), fileStat.ModTime(), file.(io.ReadSeekCloser))
+	})))
 
 	// Asset routes
 	router.PathPrefix("/assets").Methods("GET").Handler(fsHome)
