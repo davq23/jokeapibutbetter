@@ -59,7 +59,7 @@ func (a *App) Setup() error {
 	jokeHandler := handlers.NewJoke(jokeService, logger)
 	validate := validator.New()
 
-	authMiddlware := middlewares.NewJWTAuth(config.APISecret, logger)
+	authMiddlware := middlewares.NewJWTAuth(config.APISecret, config.RefreshSecret, true, logger)
 
 	bodyValidator := middlewares.NewBodyValidator(validate, func() interface{} {
 		return &data.Joke{}

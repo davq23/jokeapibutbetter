@@ -95,6 +95,10 @@ export const useUserStore = defineStore('user', {
                             jsonResponse.data as User;
 
                         this.setCurrentUser(id, username, email);
+
+                        if (jsonResponse.token) {
+                            localStorage.setItem('token', jsonResponse.token);
+                        }
                     } else {
                         this.emptyCurrentUser();
                     }

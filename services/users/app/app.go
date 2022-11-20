@@ -55,7 +55,7 @@ func (a *App) Setup() error {
 
 	userRepository := postgres.NewUser(a.db)
 	userService := services.NewUser(userRepository)
-	userHandler := handlers.NewUser(userService, logger, config.APISecret)
+	userHandler := handlers.NewUser(userService, logger, config.APISecret, config.RefreshSecret)
 	validate := validator.New()
 
 	userBodyValidator := middlewares.NewBodyValidator(validate, func() interface{} {
@@ -65,7 +65,7 @@ func (a *App) Setup() error {
 		return &libs.AuthRequest{}
 	})
 
-	jwtMiddleware := middlewares.NewJWTAuth(config.APISecret, logger)
+	jwtMiddleware := middlewares.NewJWTAuth(config.APISecret, config.RefreshSecret, true, logger)
 
 	router := mux.NewRouter()
 	router.Use(middlewares.FormatMiddleware)

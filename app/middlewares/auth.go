@@ -6,20 +6,26 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/davq23/jokeapibutbetter/app/libs"
+	"github.com/davq23/jokeapibutbetter/app/utilities"
 	"github.com/dgrijalva/jwt-go"
 )
 
 type JWTAuth struct {
-	logger *log.Logger
-	secret string
+	logger        *log.Logger
+	secret        string
+	refreshSecret string
+	allowRefresh  bool
 }
 
-func NewJWTAuth(secret string, logger *log.Logger) *JWTAuth {
+func NewJWTAuth(secret string, refreshSecret string, allowRefresh bool, logger *log.Logger) *JWTAuth {
 	return &JWTAuth{
-		secret: secret,
-		logger: logger,
+		secret:        secret,
+		refreshSecret: refreshSecret,
+		logger:        logger,
+		allowRefresh:  allowRefresh,
 	}
 }
 
@@ -29,6 +35,26 @@ type AuthClaims struct {
 }
 
 type CurrentUserIDKey struct{}
+type RefreshSecretKey struct{}
+
+func (j JWTAuth) CheckRefreshToken(r *http.Request) (*jwt.Token, error) {
+	refreshTokenCookie, err := r.Cookie("refresh")
+
+	if err != nil {
+		return nil, err
+	}
+
+	if refreshTokenCookie.Expires.After(time.Now()) {
+		return nil, errors.New("refresh token cookie is expired")
+	}
+
+	claims := &AuthClaims{}
+
+	// Check auth token
+	token, err := utilities.ParseJWT(claims, refreshTokenCookie.Value, j.refreshSecret)
+
+	return token, err
+}
 
 func (j *JWTAuth) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -47,30 +73,29 @@ func (j *JWTAuth) AuthMiddleware(next http.Handler) http.Handler {
 
 		claims := &AuthClaims{}
 
-		token, err := jwt.ParseWithClaims(bearerAuthPair[1], claims, func(token *jwt.Token) (interface{}, error) {
-			_, ok := token.Method.(*jwt.SigningMethodHMAC)
+		// Check auth token
+		token, err := utilities.ParseJWT(claims, bearerAuthPair[1], j.secret)
 
-			if !ok {
-				return nil, errors.New("Forbidden")
-			}
-
-			return []byte(j.secret), nil
-		})
+		ctx := r.Context()
 
 		if err != nil || !token.Valid {
-			w.WriteHeader(http.StatusForbidden)
-			if err != nil {
+			//token, err := j.CheckRefreshToken(r)
+
+			if err != nil || !token.Valid {
 				j.logger.Println(err.Error())
-			} else {
-				j.logger.Println(token.Claims.Valid().Error())
+				formatter.WriteFormatted(w, libs.StandardReponse{
+					Status:  http.StatusForbidden,
+					Message: "Forbidden",
+				})
+				return
 			}
-			formatter.WriteFormatted(w, libs.StandardReponse{
-				Status:  http.StatusForbidden,
-				Message: "Forbidden",
-			})
-			return
+
+			claims = token.Claims.(*AuthClaims)
+			ctx = context.WithValue(ctx, RefreshSecretKey{}, true)
 		}
 
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), CurrentUserIDKey{}, claims.UserID)))
+		ctx = context.WithValue(ctx, CurrentUserIDKey{}, claims.UserID)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

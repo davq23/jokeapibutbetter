@@ -24,6 +24,7 @@ export abstract class Service {
             method,
             headers,
             body,
+            credentials: 'include',
         });
     }
 }

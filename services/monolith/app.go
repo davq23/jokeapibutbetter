@@ -72,7 +72,7 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	apiRoutes := router.PathPrefix("/api").Subrouter().StrictSlash(true)
 
 	// Authorization middleware
-	authMiddlware := middlewares.NewJWTAuth(config.APISecret, log.New(os.Stdout, "auth middleware -", log.LstdFlags))
+	authMiddlware := middlewares.NewJWTAuth(config.APISecret, config.RefreshSecret, true, log.New(os.Stdout, "auth middleware -", log.LstdFlags))
 
 	// Body serializer / validation middlwares
 	validate := validator.New()
@@ -84,11 +84,13 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	// Global in-out formatting middleware for JSON, XML, YAML
 	apiRoutes.Use(middlewares.FormatMiddleware)
 
+	// CORS
 	apiRoutes.Use(func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set(http.CanonicalHeaderKey("Access-Control-Allow-Headers"), "Authorization")
-			w.Header().Set(http.CanonicalHeaderKey("Access-Control-Allow-Methods"), strings.Join([]string{http.MethodPost, http.MethodGet}, ","))
-			w.Header().Set(http.CanonicalHeaderKey("Access-Control-Allow-Origin"), config.CORSDomains)
+			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Set-Cookie")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			w.Header().Set("Access-Control-Allow-Methods", strings.Join([]string{http.MethodPost, http.MethodGet}, ","))
+			w.Header().Set("Access-Control-Allow-Origin", config.CORSDomains)
 
 			h.ServeHTTP(w, r)
 		})
@@ -109,7 +111,7 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	ratingService := ratingServices.NewRating(jokeService, ratingRepository, userService)
 
 	// Handlers
-	uh := userHandlers.NewUser(userService, log.New(os.Stdout, "user api -", log.LstdFlags), config.APISecret)
+	uh := userHandlers.NewUser(userService, log.New(os.Stdout, "user api -", log.LstdFlags), config.APISecret, config.RefreshSecret)
 	jh := jokeHandlers.NewJoke(jokeService, log.New(os.Stdout, "joke api -", log.LstdFlags))
 	rh := ratingHandlers.NewRating(ratingService, log.New(os.Stdout, "rating api -", log.LstdFlags))
 
@@ -176,6 +178,7 @@ func (a *App) Setup() error {
 		DBPassword:        os.Getenv("DB_PASSWORD"),
 		Timezone:          os.Getenv("TIMEZONE"),
 		APISecret:         os.Getenv("API_SECRET"),
+		RefreshSecret:     os.Getenv("REFRESH_SECRET"),
 		SSLMode:           os.Getenv("SSL_MODE"),
 		CORSDomains:       os.Getenv("CORS_DOMAINS"),
 	}

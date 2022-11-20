@@ -10,6 +10,7 @@ type StandardReponse struct {
 	Status  int64       `json:"status" xml:"status,attr" yaml:"status"`
 	Data    interface{} `json:"data,omitempty" xml:"data>data" yaml:"data,omitempty"`
 	Message string      `json:"message,omitempty" xml:"message,omitempty" yaml:"message,omitempty"`
+	Token   string      `json:"token,omitempty" xml:"token,omitempty" yaml:"token,omitempty"`
 }
 
 type AuthRequest struct {
@@ -39,6 +40,7 @@ type ConfigResponse struct {
 	DBPassword        string   `json:"db_password" xml:"db_password" yaml:"db_password"`
 	DBName            string   `json:"db_name" xml:"db_name" yaml:"db_name"`
 	APISecret         string   `json:"api_secret" xml:"api_secret" yaml:"api_secret"`
+	RefreshSecret     string   `json:"refresh_secret" xml:"refresh_secret" yaml:"refresh_secret"`
 	Timezone          string   `json:"timezone" xml:"timezone" yaml:"timezone"`
 	SSLMode           string   `json:"ssl_mode" xml:"ssl_mode" yaml:"ssl_mode"`
 	CORSDomains       string   `json:"cors_domains" xml:"cors_domains" yaml:"cors_domains"`

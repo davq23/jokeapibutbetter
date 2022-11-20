@@ -9,21 +9,24 @@ import (
 	"github.com/davq23/jokeapibutbetter/app/libs"
 	"github.com/davq23/jokeapibutbetter/app/middlewares"
 	"github.com/davq23/jokeapibutbetter/app/services"
+	"github.com/davq23/jokeapibutbetter/app/utilities"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 )
 
 type User struct {
-	jwtSecret   string
-	userService services.UserInterface
-	logger      *log.Logger
+	jwtSecret     string
+	refreshSecret string
+	userService   services.UserInterface
+	logger        *log.Logger
 }
 
-func NewUser(userService services.UserInterface, logger *log.Logger, jwtSecret string) *User {
+func NewUser(userService services.UserInterface, logger *log.Logger, jwtSecret string, refreshSecret string) *User {
 	return &User{
-		jwtSecret:   jwtSecret,
-		userService: userService,
-		logger:      logger,
+		jwtSecret:     jwtSecret,
+		refreshSecret: refreshSecret,
+		userService:   userService,
+		logger:        logger,
 	}
 }
 
@@ -54,10 +57,33 @@ func (u *User) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user.Hash = ""
+	newToken := ""
+
+	/*_, refreshRequired := r.Context().Value(middlewares.RefreshSecretKey{}).(bool)
+
+	if refreshRequired {
+		claims := middlewares.AuthClaims{
+			UserID: user.ID,
+			StandardClaims: jwt.StandardClaims{
+				IssuedAt:  time.Now().Unix(),
+				ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+			},
+		}
+
+		newToken, err = utilities.SignJWT(claims, u.jwtSecret)
+
+		if err != nil {
+			formatter.WriteFormatted(w, libs.StandardReponse{
+				Status:  http.StatusInternalServerError,
+				Message: "Error occured",
+			})
+		}
+	}*/
 
 	formatter.WriteFormatted(w, libs.StandardReponse{
 		Status: http.StatusOK,
 		Data:   user,
+		Token:  newToken,
 	})
 }
 
@@ -106,8 +132,7 @@ func (u *User) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := tokenClaims.SignedString([]byte(u.jwtSecret))
+	token, err := utilities.SignJWT(claims, u.jwtSecret)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -118,6 +143,17 @@ func (u *User) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	refreshToken, _ := utilities.SignJWT(claims, u.refreshSecret)
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh",
+		Value:    refreshToken,
+		Path:     "/",
+		Expires:  time.Now().Add(time.Hour * 24),
+		HttpOnly: true,
+		Secure:   false,
+	})
 
 	formatter.WriteFormatted(w, libs.StandardReponse{Status: http.StatusOK, Data: libs.AuthResponse{
 		Token:    token,
