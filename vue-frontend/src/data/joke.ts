@@ -8,4 +8,5 @@ export default interface Joke {
     added_at: string;
     lang: string;
     user: User | undefined;
+    stars: number | undefined;
 }

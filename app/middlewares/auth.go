@@ -56,6 +56,27 @@ func (j JWTAuth) CheckRefreshToken(r *http.Request) (*jwt.Token, error) {
 	return token, err
 }
 
+func (j *JWTAuth) GetCurrentUserMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		bearerAuthPair := strings.Split(r.Header.Get("Authorization"), " ")
+
+		ctx := r.Context()
+
+		if len(bearerAuthPair) == 2 {
+			claims := &AuthClaims{}
+
+			// Check auth token
+			token, err := utilities.ParseJWT(claims, bearerAuthPair[1], j.secret)
+
+			if err == nil && token.Valid {
+				ctx = context.WithValue(ctx, CurrentUserIDKey{}, claims.UserID)
+			}
+		}
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func (j *JWTAuth) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		formatter := r.Context().Value(FormatterContextKey{}).(libs.Formatter)

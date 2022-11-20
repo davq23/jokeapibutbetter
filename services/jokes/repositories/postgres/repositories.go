@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/davq23/jokeapibutbetter/app/data"
+	"github.com/davq23/jokeapibutbetter/app/middlewares"
 )
 
 type Joke struct {
@@ -45,8 +46,15 @@ func (j *Joke) GetByID(c context.Context, id string) (*data.Joke, error) {
 }
 
 func (j *Joke) GetAll(c context.Context, limit uint64, language string, direction uint64, addedAtOffset uint64) ([]*data.Joke, error) {
-	sqlSentence := "SELECT j.uuid, j.text, j.author_id, j.description, j.lang, j.added_at, u.username, u.email FROM jokes j JOIN users u ON j.author_id = u.uuid WHERE"
-	sqlSentence += " j.deleted_at IS NULL"
+	currentID := c.Value(middlewares.CurrentUserIDKey{})
+	sqlSentence := "SELECT j.uuid, j.text, j.author_id, j.description, j.lang, j.added_at, u.username, u.email FROM jokes j JOIN users u ON j.author_id = u.uuid"
+
+	if currentID != nil {
+		sqlSentence = "SELECT j.uuid, j.text, j.author_id, j.description, j.lang, j.added_at, u.username, u.email, r.stars FROM jokes j JOIN users u ON j.author_id = u.uuid"
+		sqlSentence += " LEFT JOIN ratings r ON j.uuid = r.joke_id"
+	}
+
+	sqlSentence += " WHERE j.deleted_at IS NULL"
 
 	if len(language) > 2 {
 		if language != "" {
@@ -67,6 +75,11 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 	} else {
 		sqlSentence += " AND j.added_at < TO_TIMESTAMP($2)"
 	}
+
+	if currentID != nil {
+		sqlSentence += " AND (r.user_id = $3 OR r.stars IS NULL)"
+	}
+
 	sqlSentence += " ORDER BY j.added_at DESC"
 	statement, err := j.db.PrepareContext(c, sqlSentence)
 
@@ -76,7 +89,13 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 
 	defer statement.Close()
 
-	rows, err := statement.QueryContext(c, language, addedAtOffset)
+	var rows *sql.Rows
+
+	if currentID == nil {
+		rows, err = statement.QueryContext(c, language, addedAtOffset)
+	} else {
+		rows, err = statement.QueryContext(c, language, addedAtOffset, currentID.(string))
+	}
 
 	if err != nil {
 		return nil, err
@@ -91,7 +110,11 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 
 		joke.User = &data.User{}
 
-		err = rows.Scan(&joke.ID, &joke.Text, &joke.AuthorID, &joke.Description, &joke.Language, &joke.AddedAt, &joke.User.Username, &joke.User.Email)
+		if currentID == nil {
+			err = rows.Scan(&joke.ID, &joke.Text, &joke.AuthorID, &joke.Description, &joke.Language, &joke.AddedAt, &joke.User.Username, &joke.User.Email)
+		} else {
+			err = rows.Scan(&joke.ID, &joke.Text, &joke.AuthorID, &joke.Description, &joke.Language, &joke.AddedAt, &joke.User.Username, &joke.User.Email, &joke.Stars)
+		}
 
 		if err != nil {
 			return nil, err

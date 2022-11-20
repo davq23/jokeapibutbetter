@@ -1,8 +1,20 @@
-export const getFlagByLanguage = (languageCode: string): string => {
+export const getFlagClassByLanguage = (
+    languageCode: string,
+    squared: boolean = false,
+): string => {
     switch (languageCode) {
-        case 'fr-FR':
-            return '🇫🇷';
+        case 'en-US':
+        case 'en-UK':
+            languageCode = 'gb-US';
+            break;
+
+        case 'fr-CA':
+            languageCode = 'ca-CA';
+            break;
+
+        default:
+            break;
     }
 
-    return '';
+    return `fib fi-${languageCode.split('-')[0]} ${squared ? 'fis' : ''}`;
 };

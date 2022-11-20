@@ -57,6 +57,7 @@ type Joke struct {
 	AuthorID    string   `json:"author_id" xml:"author_id,attr" yaml:"author_id" validate:"required,uuid"`
 	User        *User    `json:"user,omitempty" yaml:"user,omitempty" xml:"user,omitempty"`
 	Language    string   `json:"lang" xml:"lang,attr" yaml:"lang" validate:"required,bcp47_language_tag"`
+	Stars       *float64 `json:"stars,omitempty"  xml:"stars,attr,omitempty" yaml:"stars,omitempty"`
 }
 
 type Rating struct {
@@ -65,5 +66,5 @@ type Rating struct {
 	Stars   float64 `json:"stars" xml:"start,attr" yaml:"stars" validate:"required,lte=5,gte=0"`
 	UserID  string  `json:"user_id" xml:"user_id,attr" yaml:"user_id" validate:"required,uuid"`
 	JokeID  string  `json:"joke_id" xml:"joke_id,attr" yaml:"joke_id" validate:"required,uuid"`
-	Comment string  `json:"comment" xml:",cdata" yaml:"comment" validate:"max=255"`
+	Comment string  `json:"comment,omitempty" xml:",cdata,omitempty" yaml:"comment,omitempty" validate:"max=255"`
 }

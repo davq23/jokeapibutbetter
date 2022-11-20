@@ -1,4 +1,6 @@
 import '@mdi/font/css/materialdesignicons.css';
+import '@fortawesome/fontawesome-free/css/all.css';
+import 'flag-icons/css/flag-icons.min.css';
 import App from './App.vue';
 import router from './router';
 
@@ -30,6 +32,5 @@ const vuetify = createVuetify({
 });
 
 app.use(vuetify);
-app.config.globalProperties.$store = {};
 
 app.mount('#app');

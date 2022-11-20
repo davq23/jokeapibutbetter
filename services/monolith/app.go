@@ -155,7 +155,7 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 
 	// Joke-related routes
 	getRoutes.HandleFunc("/jokes/{id:"+data.IDRegexp+"}", jh.GetByID)
-	getRoutes.HandleFunc("/jokes", jh.GetAll)
+	getRoutes.Handle("/jokes", authMiddlware.GetCurrentUserMiddleware(http.HandlerFunc(jh.GetAll)))
 }
 
 func (a *App) Setup() error {

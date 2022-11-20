@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/davq23/jokeapibutbetter/app/data"
 	"github.com/davq23/jokeapibutbetter/app/services"
@@ -59,23 +60,31 @@ func (rt *Rating) FindByUserIDAndJokeID(ctx context.Context, userID string, joke
 }
 
 func (rt *Rating) Save(ctx context.Context, rating *data.Rating) error {
-	_, err := rt.jokeService.FindByID(ctx, rating.JokeID)
+	currentRating, err := rt.ratingRepository.GetByJokeIDAndUserID(ctx, rating.JokeID, rating.UserID)
 
 	if err != nil {
-		return err
-	}
+		if err != sql.ErrNoRows {
+			return err
+		}
 
-	_, err = rt.userService.FindByID(ctx, rating.UserID)
+		_, err := rt.jokeService.FindByID(ctx, rating.JokeID)
 
-	if err != nil {
-		return err
-	}
+		if err != nil {
+			return err
+		}
 
-	if rating.ID == "" {
+		_, err = rt.userService.FindByID(ctx, rating.UserID)
+
+		if err != nil {
+			return err
+		}
+
 		rating.GenerateID()
 
 		return rt.ratingRepository.Insert(ctx, rating)
 	}
+
+	rating.ID = currentRating.ID
 
 	return rt.ratingRepository.Update(ctx, rating)
 }
