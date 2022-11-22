@@ -3,6 +3,20 @@
         <div v-if="jokes !== null">
             <joke-list :jokes="jokes" />
         </div>
+        <div
+            v-else
+            style="
+                width: 100%;
+                height: 100%;
+                min-height: 50px,
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            ">
+            <v-progress-circular
+                indeterminate
+                color="secondary"></v-progress-circular>
+        </div>
     </div>
 </template>
 
@@ -10,7 +24,7 @@
 import Config from '@/config/Config';
 import type Joke from '@/data/joke';
 import type StandardResponse from '@/libs/standard';
-import JokeList from "@/components/jokes/JokeList.vue"
+import JokeList from '@/components/jokes/JokeList.vue';
 import { JokeService } from '@/services/joke.service';
 import { defineComponent } from 'vue';
 
@@ -56,6 +70,8 @@ export default defineComponent({
     },
 
     mounted() {
+        this.jokes = null;
+
         if (this.$route.query['lang']) {
             this.language = this.$route.query['lang']?.toString();
         }

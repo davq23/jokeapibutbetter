@@ -1,48 +1,38 @@
 <template>
-    <div class="stars-outer" @click="setClickStars">
-        <div
-            :key="rerender"
-            class="stars-inner"
-            :style="`width: ${
-                ((stars ?? 0 / maxStars) * 100).toFixed(2) + '%'
-            };`"></div>
+    <div>
+        <p>{{ title }}</p>
+        <div class="stars-outer" @click="setClickStars" ref="starsOuter">
+            <div
+                class="stars-inner"
+                :style="`width: ${
+                    ((modelValue !== undefined ? modelValue : 0) / maxStars) *
+                    100
+                }%;`"></div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-
-interface RatingInput {
-    stars: number;
-    rerender: number;
-}
+import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
-    data(): RatingInput {
-        return {
-            stars: 0,
-            rerender: 0,
-        };
-    },
-
+    emits: ['update:modelValue'],
     methods: {
         setClickStars(event: MouseEvent) {
-            if (event && event.target instanceof HTMLElement) {
-                const clientRect = event.target.getBoundingClientRect();
+            if (
+                !this.disabled &&
+                this.starsOuter !== null &&
+                event &&
+                event.target instanceof HTMLElement
+            ) {
+                const clientRect = this.starsOuter.getBoundingClientRect();
                 const xRelativePosition = event.clientX - clientRect.left;
 
                 const score =
                     this.maxStars * (xRelativePosition / clientRect.width);
-
-                this.stars = Math.round(score * 2) / 2;
+                this.$emit('update:modelValue', Math.round(score * 2) / 2);
             }
         },
-    },
-
-    mounted() {
-        this.stars = this.modelValue ?? 0;
-
-        this.rerender = 1;
     },
 
     props: {
@@ -51,17 +41,28 @@ export default defineComponent({
             default: 5,
         },
 
-        modelValue: Number,
+        title: {
+            type: String,
+            default: '',
+        },
+
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
+
+        modelValue: {
+            type: [Number, Number as () => number | undefined],
+            required: true,
+        },
     },
 
-    emits: ['input:modelValue'],
+    setup() {
+        const starsOuter = ref<HTMLDivElement | null>(null);
 
-    watch: {
-        stars(newValue: number) {
-            this.$emit('input:modelValue', newValue);
-
-            this.rerender = this.rerender === 1 ? 0 : 1;
-        },
+        return {
+            starsOuter,
+        };
     },
 });
 </script>

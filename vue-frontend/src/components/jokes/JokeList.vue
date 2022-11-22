@@ -9,11 +9,15 @@
             :subtitle="`Posted  by ${joke.user?.username} at ${formatDate(
                 joke.added_at,
             )}`">
-            <div style="text-align: end; margin-right: 1rem">
+            <div style="margin-right: 1rem; text-align: end">
                 <rating-input
                     v-if="user.id"
-                    v-model="joke.stars"
-                    @input="publishRating($event, joke.id)"></rating-input>
+                    title="Your rating"
+                    v-model.number="joke.stars"
+                    @update:modelValue="
+                        publishRating($event, joke.id)
+                    "></rating-input>
+                <span v-else>Log in to rank this joke</span>
             </div>
         </v-card>
     </div>
