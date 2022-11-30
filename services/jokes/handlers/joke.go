@@ -63,7 +63,7 @@ func (j *Joke) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := j.jokeService.FindByID(r.Context(), id)
+	joke, err := j.jokeService.FindByID(r.Context(), id)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -75,7 +75,7 @@ func (j *Joke) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	formatter.WriteFormatted(w, libs.StandardReponse{Status: http.StatusOK, Data: user})
+	formatter.WriteFormatted(w, libs.StandardReponse{Status: http.StatusOK, Data: joke})
 }
 
 func (j *Joke) GetAll(w http.ResponseWriter, r *http.Request) {
