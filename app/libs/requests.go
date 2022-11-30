@@ -8,10 +8,16 @@ import (
 type StandardReponse struct {
 	XMLName xml.Name    `json:"-" xml:"response" yaml:"-"`
 	Status  int64       `json:"status" xml:"status,attr" yaml:"status"`
-	Link    string      `json:"string,omitempty" xml:"link,omitempty" yaml:"link,omitempty"`
 	Data    interface{} `json:"data,omitempty" xml:"data>data" yaml:"data,omitempty"`
 	Message string      `json:"message,omitempty" xml:"message,omitempty" yaml:"message,omitempty"`
 	Token   string      `json:"token,omitempty" xml:"token,omitempty" yaml:"token,omitempty"`
+}
+
+type StandardReponseList struct {
+	StandardReponse
+	Link     string `json:"link,omitempty" xml:"link,omitempty" yaml:"link,omitempty"`
+	NextLink string `json:"next-link,omitempty" xml:"next-link,omitempty" yaml:"next-link,omitempty"`
+	LastLink string `json:"last-link,omitempty" xml:"last-link,omitempty" yaml:"last-link,omitempty"`
 }
 
 type AuthRequest struct {
