@@ -8,6 +8,7 @@ import (
 type StandardReponse struct {
 	XMLName xml.Name    `json:"-" xml:"response" yaml:"-"`
 	Status  int64       `json:"status" xml:"status,attr" yaml:"status"`
+	Link    string      `json:"string,omitempty" xml:"link,omitempty" yaml:"link,omitempty"`
 	Data    interface{} `json:"data,omitempty" xml:"data>data" yaml:"data,omitempty"`
 	Message string      `json:"message,omitempty" xml:"message,omitempty" yaml:"message,omitempty"`
 	Token   string      `json:"token,omitempty" xml:"token,omitempty" yaml:"token,omitempty"`
