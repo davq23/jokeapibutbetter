@@ -1,3 +1,4 @@
+import type Joke from '@/data/joke';
 import { Service } from '@/services/service';
 
 export class JokeService extends Service {
@@ -23,6 +24,17 @@ export class JokeService extends Service {
             'GET',
             new Headers(),
             null,
+        );
+    }
+
+    public save(joke: Joke) {
+        joke.id = '';
+
+        return this.sendRequest(
+            'jokes',
+            'POST',
+            new Headers(),
+            JSON.stringify(joke),
         );
     }
 }

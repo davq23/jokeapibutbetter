@@ -84,7 +84,7 @@ export const useUserStore = defineStore('user', {
                 localStorage.getItem('token'),
             );
 
-            userService
+            return userService
                 .whoIAm()
                 .then((response) => {
                     return response.json();

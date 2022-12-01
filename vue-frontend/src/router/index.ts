@@ -1,5 +1,5 @@
 import { useUserStore } from '@/stores/user';
-import JokesView from '@/views/JokesView.vue';
+
 import {
     createRouter,
     createWebHistory,
@@ -10,13 +10,21 @@ const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
-            path: '/dashboard',
             name: 'jokes',
-            component: JokesView,
+            path: '/dashboard',
+            component: () => import('../views/JokesView.vue'),
         },
         {
-            path: '/about',
+            meta: {
+                roles: 'admin',
+            },
+            name: 'new-joke',
+            path: '/jokes/new',
+            component: () => import('../views/NewJokeView.vue'),
+        },
+        {
             name: 'about',
+            path: '/about',
             // route level code-splitting
             // this generates a separate chunk (About.[hash].js) for this route
             // which is lazy-loaded when the route is visited.
@@ -34,7 +42,13 @@ router.beforeResolve(
     async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
         const user = useUserStore();
 
-        user.whoIAm();
+        await user.whoIAm();
+
+        if (to.meta.authRequired === true && user.id === null) {
+            return {
+                name: 'login',
+            };
+        }
     },
 );
 
