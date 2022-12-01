@@ -85,6 +85,7 @@ func (j *Joke) GetAll(w http.ResponseWriter, r *http.Request) {
 	addedAtOffset, errOffset := strconv.ParseUint(addedAtOffsetString, 10, 64)
 	direction, _ := strconv.ParseUint(r.URL.Query().Get("direction"), 10, 64)
 	language := r.URL.Query().Get("lang")
+	currentUserInjected, okCurrentUser := r.Context().Value(middlewares.CurrentUserKey{}).(*data.User)
 
 	var err error
 
@@ -114,10 +115,16 @@ func (j *Joke) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	formatter.WriteFormatted(w, libs.StandardReponse{
+	response := libs.StandardReponse{
 		Status: http.StatusOK,
 		Data:   jokes,
-	})
+	}
+
+	if okCurrentUser && currentUserInjected.Link != "" {
+		response.Link = currentUserInjected.Link
+	}
+
+	formatter.WriteFormatted(w, response)
 }
 
 func (j *Joke) Save(w http.ResponseWriter, r *http.Request) {

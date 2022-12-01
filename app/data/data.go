@@ -30,11 +30,13 @@ type User struct {
 	Username string   `json:"username" xml:"username" yaml:"username" validate:"required"`
 	Hash     string   `json:"hash,omitempty" xml:"hash,omitempty" yaml:"hash,omitempty" validate:"required"`
 	Roles    []string `json:"roles,omitempty" xml:"roles>role,omitempty" yaml:"roles,omitempty"`
+	Link     string   `json:"link,omitempty" xml:"link,omitempty" yaml:"link,omitempty"`
 	isHashed bool
 }
 
 const USER_ROLE_ADMIN = "ADMIN"
 const USER_ROLE_USER = "USER"
+const USER_ROLE_RSS = "RSS"
 
 func (u *User) HashPassword() (err error) {
 	if !u.isHashed {

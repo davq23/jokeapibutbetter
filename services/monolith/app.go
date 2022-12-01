@@ -110,6 +110,8 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	jokeService := jokeServices.NewJoke(jokeRepository, userService)
 	ratingService := ratingServices.NewRating(jokeService, ratingRepository, userService)
 
+	userInjector := middlewares.NewUserInjector(userService)
+
 	// Handlers
 	uh := userHandlers.NewUser(userService, log.New(os.Stdout, "user api -", log.LstdFlags), config.APISecret, config.RefreshSecret)
 	jh := jokeHandlers.NewJoke(jokeService, log.New(os.Stdout, "joke api -", log.LstdFlags))
@@ -155,7 +157,9 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 
 	// Joke-related routes
 	getRoutes.HandleFunc("/jokes/{id:"+data.IDRegexp+"}", jh.GetByID)
-	getRoutes.Handle("/jokes", authMiddlware.GetCurrentUserMiddleware(http.HandlerFunc(jh.GetAll)))
+	getRoutes.Handle("/jokes", authMiddlware.GetCurrentUserMiddleware(
+		userInjector.UserInjectorMiddleware(http.HandlerFunc(jh.GetAll)),
+	))
 }
 
 func (a *App) Setup() error {

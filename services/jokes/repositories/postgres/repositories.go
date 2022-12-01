@@ -51,7 +51,7 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 
 	if currentID != nil {
 		sqlSentence = "SELECT j.uuid, j.text, j.author_id, j.description, j.lang, j.added_at, u.username, u.email, r.stars FROM jokes j JOIN users u ON j.author_id = u.uuid"
-		sqlSentence += " LEFT JOIN ratings r ON j.uuid = r.joke_id"
+		sqlSentence += " LEFT JOIN ratings r ON u.uuid = r.user_id"
 	}
 
 	sqlSentence += " WHERE j.deleted_at IS NULL"
