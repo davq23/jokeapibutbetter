@@ -1,3 +1,4 @@
+import Config from '@/config/Config';
 import type { User } from '@/data/user';
 import type { AuthResponse } from '@/libs/auth';
 import type StandardResponse from '@/libs/standard';
@@ -46,7 +47,7 @@ export const useUserStore = defineStore('user', {
 
         async login(user: string, password: string): Promise<StandardResponse> {
             const userService = new UserService(
-                import.meta.env.VITE_JOKEAPI_URL ?? 'api',
+                Config.apiUrl,
                 localStorage.getItem('token'),
             );
 
@@ -84,7 +85,7 @@ export const useUserStore = defineStore('user', {
 
         async whoIAm() {
             const userService = new UserService(
-                import.meta.env.VITE_JOKEAPI_URL ?? 'api',
+                Config.apiUrl,
                 localStorage.getItem('token'),
             );
 
