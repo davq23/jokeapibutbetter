@@ -3,6 +3,7 @@
         <div v-if="jokes !== null">
             <joke-list :jokes="jokes" @joke-select="onJokeSelect">
                 <v-card
+                    class="grow-on-hover"
                     style="margin-botton: 2rem"
                     title="Add Joke"
                     append-icon="mdi mdi-plus"

@@ -12,7 +12,7 @@ const router = createRouter({
         {
             name: 'jokes',
             path: '/dashboard',
-            component: () => import('../views/JokesView.vue'),
+            component: () => import('../views/jokes/JokesView.vue'),
         },
         {
             meta: {
@@ -21,7 +21,7 @@ const router = createRouter({
             },
             name: 'new-joke',
             path: '/jokes/new',
-            component: () => import('../views/JokeFormView.vue'),
+            component: () => import('../views/jokes/JokeFormView.vue'),
         },
         {
             meta: {
@@ -30,7 +30,7 @@ const router = createRouter({
             },
             name: 'edit-joke',
             path: '/jokes/:id/edit',
-            component: () => import('../views/JokeFormView.vue'),
+            component: () => import('../views/jokes/JokeFormView.vue'),
         },
         {
             meta: {
@@ -39,7 +39,7 @@ const router = createRouter({
             },
             name: 'my-jokes',
             path: '/jokes/mine',
-            component: () => import('../views/MyJokes.vue'),
+            component: () => import('../views/jokes/MyJokes.vue'),
         },
         {
             name: 'about',
@@ -52,7 +52,7 @@ const router = createRouter({
         {
             path: '/login',
             name: 'login',
-            component: () => import('../views/LoginView.vue'),
+            component: () => import('../views/auth/LoginView.vue'),
         },
     ],
 });

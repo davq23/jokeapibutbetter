@@ -1,3 +1,4 @@
+import type { User } from '@/data/user';
 import type { AuthRequest } from '@/libs/auth';
 import { Service } from '@/services/service';
 
@@ -12,6 +13,15 @@ export default class UserService extends Service {
             'POST',
             new Headers(),
             JSON.stringify(body),
+        );
+    }
+
+    public save(user: User) {
+        return this.sendRequest(
+            `users`,
+            'POST',
+            new Headers(),
+            JSON.stringify(user),
         );
     }
 }

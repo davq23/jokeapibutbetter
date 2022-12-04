@@ -12,6 +12,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { aliases, fa } from 'vuetify/iconsets/fa';
 import { mdi } from 'vuetify/iconsets/mdi';
+import '@/assets/main.css';
 
 const app = createApp(App);
 

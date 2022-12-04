@@ -1,8 +1,12 @@
 <template>
     <v-layout @change="alert.message = ''" @click="alert.message = ''">
         <template v-if="user.authLoaded">
-            <v-app-bar color="green" title="Jokes App" rounded></v-app-bar>
-            <v-navigation-drawer expand-on-hover rail>
+            <v-app-bar theme="dark">
+                <v-toolbar-title>
+                    <span class="app-bar-title"></span> Joke API Explorer
+                </v-toolbar-title>
+            </v-app-bar>
+            <v-navigation-drawer theme="dark" expand-on-hover rail>
                 <v-list v-if="user.id && user.email && user.username">
                     <v-list-item
                         prepend-icon="mdi-account"
@@ -49,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import LoadingView from './views/LoadingView.vue';
+import LoadingView from './views/auth/LoadingView.vue';
 import { defineComponent } from 'vue';
 import { RouterView } from 'vue-router';
 import {
@@ -96,4 +100,9 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.app-bar-title::before {
+    font-family: 'FontAwesome';
+    content: '\f630';
+}
+</style>

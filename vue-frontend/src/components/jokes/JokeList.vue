@@ -2,6 +2,7 @@
     <div>
         <slot></slot>
         <v-card
+            class="grow-on-hover"
             style="white-space: pre"
             v-for="joke in jokes"
             :key="joke.id"
