@@ -5,8 +5,20 @@
                 <v-toolbar-title>
                     <span class="app-bar-title"></span> Joke API Explorer
                 </v-toolbar-title>
+                <v-btn
+                    variant="text"
+                    icon="mdi-dots-vertical"
+                    dark
+                    @click="drawer = !drawer">
+                </v-btn>
             </v-app-bar>
-            <v-navigation-drawer theme="dark" expand-on-hover rail>
+            <v-navigation-drawer
+                theme="dark"
+                expand-on-hover
+                rail
+                :location="deviceWidth > 800 ? 'left' : 'bottom'"
+                temporary
+                v-model="drawer">
                 <v-list v-if="user.id && user.email && user.username">
                     <v-list-item
                         prepend-icon="mdi-account"
@@ -58,6 +70,7 @@ import { defineComponent } from 'vue';
 import { RouterView } from 'vue-router';
 import {
     VAppBar,
+    VBtn,
     VLayout,
     VList,
     VListItem,
@@ -72,11 +85,19 @@ export default defineComponent({
         LoadingView,
         RouterView,
         VAppBar,
+        VBtn,
         VLayout,
         VList,
         VListItem,
         VMain,
         VNavigationDrawer,
+    },
+
+    data() {
+        return {
+            drawer: false,
+            deviceWidth: 0,
+        };
     },
 
     setup() {
@@ -96,6 +117,10 @@ export default defineComponent({
                 this.$router.replace({ name: 'login' });
             });
         },
+    },
+
+    created() {
+        this.deviceWidth = window.innerWidth;
     },
 });
 </script>
