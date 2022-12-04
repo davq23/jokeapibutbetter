@@ -9,7 +9,7 @@
                         :subtitle="user.email"
                         :title="user.username"></v-list-item>
                 </v-list>
-                <v-list nav>
+                <v-list nav v-if="user.authLoaded">
                     <v-list-item
                         prepend-icon="mdi-home"
                         title="Home"

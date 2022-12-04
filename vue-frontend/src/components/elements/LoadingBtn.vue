@@ -1,5 +1,8 @@
 <template>
-    <v-btn :type="type" :color="color">
+    <v-btn
+        :type="!loading ? type : 'button'"
+        :color="color"
+        :disabled="loading">
         <v-progress-circular v-if="loading" indeterminate></v-progress-circular>
         {{ text }}
     </v-btn>

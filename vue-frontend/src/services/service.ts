@@ -1,3 +1,5 @@
+import { useUserStore } from '@/stores/user';
+
 export abstract class Service {
     protected baseUrl: string;
     protected apiKey: string | null;
@@ -13,18 +15,25 @@ export abstract class Service {
         }
     }
 
-    protected sendRequest(
+    protected async sendRequest(
         path: string,
         method: string,
         headers: Headers,
         body: BodyInit | null | undefined,
     ): Promise<Response> {
+        const user = useUserStore();
+
         this.setAuthorization(headers);
-        return fetch(`${this.baseUrl}/${path}`, {
+
+        const response = await fetch(`${this.baseUrl}/${path}`, {
             method,
             headers,
             body,
             credentials: 'include',
         });
+        if (response.status === 403) {
+            user.emptyCurrentUser();
+        }
+        return response;
     }
 }

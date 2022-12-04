@@ -15,11 +15,9 @@
             </v-row>
             <v-row>
                 <v-col>
-                    <select v-model="lang" label="Language">
-                        <option value="en_US">English</option>
-                        <option value="es_ES">Español</option>
-                        <option value="fr_FR">Français</option>
-                    </select>
+                    <language-select
+                        v-model="lang"
+                        @change="(newLang) => (lang = newLang)" />
                 </v-col>
             </v-row>
             <v-row>
@@ -36,9 +34,11 @@ import { defineComponent } from 'vue';
 import type { PropType } from 'vue';
 import type Joke from '@/data/joke';
 import LoadingBtn from '@/components/elements/LoadingBtn.vue';
+import LanguageSelect from '@/components/languages/LanguageSelect.vue';
 
 export default defineComponent({
     components: {
+        LanguageSelect,
         LoadingBtn,
     },
 
@@ -48,7 +48,7 @@ export default defineComponent({
             text: '',
             author_id: '',
             description: '',
-            lang: 'en_US',
+            lang: 'en',
             added_at: '',
             user: undefined,
             stars: undefined,

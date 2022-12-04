@@ -147,7 +147,7 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	getRoutes := apiRoutes.Methods(http.MethodGet).Subrouter()
 
 	// Get all language codes
-	getRoutes.HandleFunc("/languages", ch.GetAllLanguages)
+	getRoutes.HandleFunc("/config/languages", ch.GetAllLanguages)
 
 	// Who I Am route
 	getRoutes.Handle("/users/whoiam", authMiddlware.AuthMiddleware(http.HandlerFunc(uh.CurrentUser)))
