@@ -1,9 +1,15 @@
 <template>
-    <v-select :items="languages" v-model="modelValueLocal"></v-select>
+    <v-select
+        :items="languages"
+        v-model="modelValueLocal"
+        :prepend-icons="
+            languages.map((language) => getFlag(language))
+        "></v-select>
 </template>
 
 <script lang="ts">
 import Config from '@/config/Config';
+import { getFlagClassByLanguage } from '@/libs/internationalization';
 import type StandardResponse from '@/libs/standard';
 import ConfigService from '@/services/config.service';
 import { defineComponent } from 'vue';
@@ -21,6 +27,10 @@ export default defineComponent({
         };
     },
     methods: {
+        getFlag(languageCode: string): string {
+            return getFlagClassByLanguage(languageCode);
+        },
+
         getLanguages() {
             const configService = new ConfigService(
                 Config.apiUrl,
@@ -53,6 +63,12 @@ export default defineComponent({
     watch: {
         modelValueLocal(newValue: string) {
             this.$emit('input', newValue);
+        },
+
+        modelValue(newValue: string) {
+            if (this.modelValueLocal !== newValue) {
+                this.modelValueLocal = this.modelValue;
+            }
         },
     },
 });

@@ -15,9 +15,7 @@
             </v-row>
             <v-row>
                 <v-col>
-                    <language-select
-                        v-model="lang"
-                        @change="(newLang) => (lang = newLang)" />
+                    <language-select v-model="lang" @input="inputLang" />
                 </v-col>
             </v-row>
             <v-row>
@@ -62,6 +60,10 @@ export default defineComponent({
             event.preventDefault();
 
             this.$emit('submit', this.$data);
+        },
+
+        inputLang(newLang: string) {
+            this.lang = newLang;
         },
     },
 
