@@ -14,6 +14,7 @@ import (
 	"github.com/davq23/jokeapibutbetter/app/data"
 	"github.com/davq23/jokeapibutbetter/app/libs"
 	"github.com/davq23/jokeapibutbetter/app/middlewares"
+	configHandlers "github.com/davq23/jokeapibutbetter/services/config/handlers"
 	jokeHandlers "github.com/davq23/jokeapibutbetter/services/jokes/handlers"
 	jokePostgres "github.com/davq23/jokeapibutbetter/services/jokes/repositories/postgres"
 	jokeServices "github.com/davq23/jokeapibutbetter/services/jokes/services"
@@ -113,6 +114,7 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	userInjector := middlewares.NewUserInjector(userService)
 
 	// Handlers
+	ch := configHandlers.NewConfig()
 	uh := userHandlers.NewUser(userService, log.New(os.Stdout, "user api -", log.LstdFlags), config.APISecret, config.RefreshSecret)
 	jh := jokeHandlers.NewJoke(jokeService, log.New(os.Stdout, "joke api -", log.LstdFlags))
 	rh := ratingHandlers.NewRating(ratingService, log.New(os.Stdout, "rating api -", log.LstdFlags))
@@ -143,6 +145,9 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 
 	// GET routes
 	getRoutes := apiRoutes.Methods(http.MethodGet).Subrouter()
+
+	// Get all language codes
+	getRoutes.HandleFunc("/languages", ch.GetAllLanguages)
 
 	// Who I Am route
 	getRoutes.Handle("/users/whoiam", authMiddlware.AuthMiddleware(http.HandlerFunc(uh.CurrentUser)))
