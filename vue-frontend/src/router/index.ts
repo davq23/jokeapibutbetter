@@ -16,11 +16,30 @@ const router = createRouter({
         },
         {
             meta: {
-                roles: 'admin',
+                roles: ['ADMIN'],
+                authRequired: true,
             },
             name: 'new-joke',
             path: '/jokes/new',
-            component: () => import('../views/NewJokeView.vue'),
+            component: () => import('../views/JokeFormView.vue'),
+        },
+        {
+            meta: {
+                roles: ['ADMIN'],
+                authRequired: true,
+            },
+            name: 'edit-joke',
+            path: '/jokes/:id/edit',
+            component: () => import('../views/JokeFormView.vue'),
+        },
+        {
+            meta: {
+                roles: ['ADMIN'],
+                authRequired: true,
+            },
+            name: 'my-jokes',
+            path: '/jokes/mine',
+            component: () => import('../views/MyJokes.vue'),
         },
         {
             name: 'about',
@@ -42,12 +61,28 @@ router.beforeResolve(
     async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
         const user = useUserStore();
 
+        user.setAuthLoaded(false);
+
         await user.whoIAm();
+
+        user.setAuthLoaded(true);
 
         if (to.meta.authRequired === true && user.id === null) {
             return {
                 name: 'login',
             };
+        }
+
+        if (to.meta && to.meta.roles && to.meta.roles instanceof Array) {
+            const roleIntersection = to.meta.roles.filter((role) =>
+                user.roles.includes(role),
+            );
+
+            if (roleIntersection.length === 0) {
+                return {
+                    name: 'dashboard',
+                };
+            }
         }
     },
 );

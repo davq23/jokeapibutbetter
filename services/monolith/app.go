@@ -45,10 +45,10 @@ func (a *App) setupStaticRoutes(router *mux.Router) {
 	fsHome := http.FileServer(http.FS(directory))
 
 	// Asset routes
-	router.PathPrefix("/assets").Methods("GET").Handler(fsHome)
+	router.PathPrefix("/assets").Methods(http.MethodGet).Handler(fsHome)
 
 	// Main routes
-	router.PathPrefix("/").Methods("GET").Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.PathPrefix("/").Methods(http.MethodGet).Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		file, err := directory.Open("index.html")
 
 		if err != nil {

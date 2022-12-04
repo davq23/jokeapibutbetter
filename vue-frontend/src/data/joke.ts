@@ -5,7 +5,7 @@ export default interface Joke {
     author_id: string;
     description: string | undefined;
     text: string;
-    added_at: string;
+    added_at: string | null;
     lang: string;
     user: User | undefined;
     stars: number | undefined;

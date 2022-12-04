@@ -32,6 +32,7 @@ type AuthResponse struct {
 	Username string   `json:"username" xml:"username,attr" yaml:"username"`
 	Email    string   `json:"email" xml:"email,attr" yaml:"email"`
 	Token    string   `json:"token" xml:",cdata" yaml:"token"`
+	Roles    []string `json:"roles" xml:"roles>role" yaml:"roles"`
 }
 
 type ConfigResponse struct {

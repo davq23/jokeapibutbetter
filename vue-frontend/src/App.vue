@@ -1,5 +1,5 @@
 <template>
-    <v-layout>
+    <v-layout @change="alert.message = ''" @click="alert.message = ''">
         <template v-if="user.authLoaded">
             <v-app-bar color="green" title="Jokes App" rounded></v-app-bar>
             <v-navigation-drawer expand-on-hover rail>
@@ -16,10 +16,11 @@
                         router
                         :to="'/dashboard'"></v-list-item>
                     <v-list-item
+                        v-if="user.id && user.roles.includes('ADMIN')"
                         prepend-icon="mdi-star"
-                        title="About"
+                        title="My Jokes"
                         router
-                        :to="'/about'"></v-list-item>
+                        :to="'/jokes/mine'"></v-list-item>
                     <v-list-item
                         v-if="user.id === null"
                         prepend-icon="mdi-door"
@@ -34,6 +35,12 @@
                 </v-list>
             </v-navigation-drawer>
             <v-main>
+                <v-alert
+                    prominent
+                    v-if="alert.message"
+                    :type="alert.messageType"
+                    >{{ alert.message }}</v-alert
+                >
                 <RouterView />
             </v-main>
         </template>
@@ -54,6 +61,7 @@ import {
     VNavigationDrawer,
 } from 'vuetify/components';
 import { useUserStore } from './stores/user';
+import { useAlertStore } from './stores/alert';
 
 export default defineComponent({
     components: {
@@ -69,8 +77,9 @@ export default defineComponent({
 
     setup() {
         const user = useUserStore();
+        const alert = useAlertStore();
 
-        return { user };
+        return { user, alert };
     },
 
     methods: {

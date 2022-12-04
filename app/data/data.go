@@ -68,5 +68,5 @@ type Rating struct {
 	Stars   float64 `json:"stars" xml:"start,attr" yaml:"stars" validate:"required,lte=5,gte=0"`
 	UserID  string  `json:"user_id" xml:"user_id,attr" yaml:"user_id" validate:"required,uuid"`
 	JokeID  string  `json:"joke_id" xml:"joke_id,attr" yaml:"joke_id" validate:"required,uuid"`
-	Comment string  `json:"comment,omitempty" xml:",cdata,omitempty" yaml:"comment,omitempty" validate:"max=255"`
+	Comment string  `json:"comment,omitempty" xml:",cdata" yaml:"comment,omitempty" validate:"max=255"`
 }

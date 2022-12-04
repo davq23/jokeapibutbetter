@@ -24,7 +24,7 @@ func NewJoke(jokeRepository repositories.Joke, userService services.UserInterfac
 	}
 }
 
-func (j *Joke) FindAll(c context.Context, limit uint64, language string, direction uint64, addedAtOffset uint64) ([]*data.Joke, error) {
+func (j *Joke) FindAll(c context.Context, limit uint64, language string, userID string, direction uint64, addedAtOffset uint64) ([]*data.Joke, error) {
 	if limit == 0 {
 		limit = 100
 	}
@@ -40,7 +40,7 @@ func (j *Joke) FindAll(c context.Context, limit uint64, language string, directi
 		}
 	}
 
-	return j.jokeRepository.GetAll(ctxCopy, limit, language, direction, addedAtOffset)
+	return j.jokeRepository.GetAll(ctxCopy, limit, language, userID, direction, addedAtOffset)
 }
 
 func (j *Joke) FindByID(c context.Context, id string) (*data.Joke, error) {

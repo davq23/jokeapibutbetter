@@ -160,6 +160,7 @@ func (u *User) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 		UserID:   user.ID,
 		Email:    user.Email,
 		Username: user.Username,
+		Roles:    user.Roles,
 	}})
 }
 

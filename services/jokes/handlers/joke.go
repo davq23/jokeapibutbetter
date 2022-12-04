@@ -80,6 +80,7 @@ func (j *Joke) GetByID(w http.ResponseWriter, r *http.Request) {
 
 func (j *Joke) GetAll(w http.ResponseWriter, r *http.Request) {
 	formatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
+	userID := r.URL.Query().Get("author_id")
 	limit, _ := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64)
 	addedAtOffsetString := r.URL.Query().Get("offset")
 	addedAtOffset, errOffset := strconv.ParseUint(addedAtOffsetString, 10, 64)
@@ -105,7 +106,7 @@ func (j *Joke) GetAll(w http.ResponseWriter, r *http.Request) {
 		addedAtOffset = uint64(addedAtTimeOffset.Unix())
 	}
 
-	jokes, err := j.jokeService.FindAll(r.Context(), limit, language, direction, addedAtOffset)
+	jokes, err := j.jokeService.FindAll(r.Context(), limit, language, userID, direction, addedAtOffset)
 
 	if err != nil {
 		formatter.WriteFormatted(w, libs.StandardReponse{

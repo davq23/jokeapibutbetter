@@ -6,10 +6,9 @@
         <div
             v-else
             style="
+                display: flex;
                 width: 100%;
                 height: 100%;
-                min-height: 50px,
-                display: flex;
                 justify-content: center;
                 align-items: center;
             ">
@@ -27,6 +26,9 @@ import type StandardResponse from '@/libs/standard';
 import JokeList from '@/components/jokes/JokeList.vue';
 import { JokeService } from '@/services/joke.service';
 import { defineComponent } from 'vue';
+import type Rating from '@/data/rating';
+import { useUserStore } from '@/stores/user';
+import RatingService from '@/services/rating.service';
 
 interface JokeViewData {
     language: string | null;
@@ -57,13 +59,57 @@ export default defineComponent({
             );
 
             jokeService
-                .getJokes(this.offset, this.language, this.direction)
+                .getJokes(this.offset, this.language, this.direction, null)
                 .then((response: Response) => {
                     return response.json();
                 })
                 .then((jsonResponse: StandardResponse): void => {
                     if (jsonResponse.status === 200) {
                         this.jokes = jsonResponse.data as Joke[];
+                    }
+                })
+                .finally(() => {
+                    if (this.jokes !== null && this.user.id !== null) {
+                        this.fetchRatings();
+                    }
+                });
+        },
+
+        async assignRatings(ratings: Rating[]) {
+            if (this.jokes === null) {
+                return;
+            }
+            const ratingMap = new Map<string, number>(
+                ratings.map((rating: Rating) => [rating.joke_id, rating.stars]),
+            );
+
+            for (let index = 0; index < this.jokes.length; index++) {
+                if (ratingMap.has(this.jokes[index].id)) {
+                    this.jokes[index].stars = ratingMap.get(
+                        this.jokes[index].id,
+                    );
+                }
+            }
+        },
+
+        fetchRatings() {
+            if (this.user.id === null) {
+                return;
+            }
+
+            const ratingService = new RatingService(
+                Config.apiUrl,
+                localStorage.getItem('token'),
+            );
+
+            ratingService
+                .getAllByUserID(this.user.id)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((jsonResponse: StandardResponse) => {
+                    if (jsonResponse.status == 200) {
+                        this.assignRatings(jsonResponse.data as Rating[]);
                     }
                 });
         },
@@ -80,6 +126,14 @@ export default defineComponent({
         }
 
         this.getJokes();
+    },
+
+    setup() {
+        const user = useUserStore();
+
+        return {
+            user,
+        };
     },
 });
 </script>

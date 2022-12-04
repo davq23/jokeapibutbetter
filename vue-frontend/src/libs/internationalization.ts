@@ -2,6 +2,8 @@ export const getFlagClassByLanguage = (
     languageCode: string,
     squared: boolean = false,
 ): string => {
+    languageCode = languageCode.replace('_', '-');
+
     switch (languageCode) {
         case 'en-US':
         case 'en-UK':

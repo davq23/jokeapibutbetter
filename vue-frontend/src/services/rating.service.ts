@@ -10,4 +10,13 @@ export default class RatingService extends Service {
             JSON.stringify(rating),
         );
     }
+
+    public getAllByUserID(userID: string): Promise<Response> {
+        return this.sendRequest(
+            `users/${userID}/ratings`,
+            'GET',
+            new Headers(),
+            null,
+        );
+    }
 }

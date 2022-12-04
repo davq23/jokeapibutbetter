@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/davq23/jokeapibutbetter/app/data"
-	"github.com/davq23/jokeapibutbetter/app/middlewares"
 )
 
 type Joke struct {
@@ -45,16 +44,11 @@ func (j *Joke) GetByID(c context.Context, id string) (*data.Joke, error) {
 	return joke, nil
 }
 
-func (j *Joke) GetAll(c context.Context, limit uint64, language string, direction uint64, addedAtOffset uint64) ([]*data.Joke, error) {
-	currentID := c.Value(middlewares.CurrentUserIDKey{})
+func (j *Joke) GetAll(c context.Context, limit uint64, language string, userID string, direction uint64, addedAtOffset uint64) ([]*data.Joke, error) {
 	sqlSentence := "SELECT j.uuid, j.text, j.author_id, j.description, j.lang, j.added_at, u.username, u.email FROM jokes j JOIN users u ON j.author_id = u.uuid"
-
-	if currentID != nil {
-		sqlSentence = "SELECT j.uuid, j.text, j.author_id, j.description, j.lang, j.added_at, u.username, u.email, r.stars FROM jokes j JOIN users u ON j.author_id = u.uuid"
-		sqlSentence += " LEFT JOIN ratings r ON u.uuid = r.user_id"
-	}
-
 	sqlSentence += " WHERE j.deleted_at IS NULL"
+
+	var params []interface{}
 
 	if len(language) > 2 {
 		if language != "" {
@@ -76,8 +70,11 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 		sqlSentence += " AND j.added_at < TO_TIMESTAMP($2)"
 	}
 
-	if currentID != nil {
-		sqlSentence += " AND (r.user_id = $3 OR r.stars IS NULL)"
+	params = append(params, language, direction)
+
+	if userID != "" {
+		sqlSentence += " AND author_id = $3"
+		params = append(params, userID)
 	}
 
 	sqlSentence += " ORDER BY j.added_at DESC"
@@ -89,13 +86,7 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 
 	defer statement.Close()
 
-	var rows *sql.Rows
-
-	if currentID == nil {
-		rows, err = statement.QueryContext(c, language, addedAtOffset)
-	} else {
-		rows, err = statement.QueryContext(c, language, addedAtOffset, currentID.(string))
-	}
+	rows, err := statement.QueryContext(c, params...)
 
 	if err != nil {
 		return nil, err
@@ -109,12 +100,7 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 		joke := &data.Joke{}
 
 		joke.User = &data.User{}
-
-		if currentID == nil {
-			err = rows.Scan(&joke.ID, &joke.Text, &joke.AuthorID, &joke.Description, &joke.Language, &joke.AddedAt, &joke.User.Username, &joke.User.Email)
-		} else {
-			err = rows.Scan(&joke.ID, &joke.Text, &joke.AuthorID, &joke.Description, &joke.Language, &joke.AddedAt, &joke.User.Username, &joke.User.Email, &joke.Stars)
-		}
+		err = rows.Scan(&joke.ID, &joke.Text, &joke.AuthorID, &joke.Description, &joke.Language, &joke.AddedAt, &joke.User.Username, &joke.User.Email)
 
 		if err != nil {
 			return nil, err
@@ -129,7 +115,7 @@ func (j *Joke) GetAll(c context.Context, limit uint64, language string, directio
 func (j *Joke) Insert(c context.Context, joke *data.Joke) error {
 	statement, err := j.db.PrepareContext(
 		c,
-		"INSERT INTO jokes (uuid, text, author_id, description, lang, added_at) VALUES ($1, $3, $2, $4, $5, $6)",
+		"INSERT INTO jokes (uuid, text, author_id, description, lang, added_at) VALUES ($1, $2, $3, $4, $5, $6)",
 	)
 
 	if err != nil {
@@ -141,7 +127,7 @@ func (j *Joke) Insert(c context.Context, joke *data.Joke) error {
 	now := time.Now()
 	joke.AddedAt = &now
 
-	_, err = statement.ExecContext(c, joke.ID, joke.AuthorID, joke.Text, joke.Description, joke.Language, joke.AddedAt.UTC())
+	_, err = statement.ExecContext(c, joke.ID, joke.Text, joke.AuthorID, joke.Description, joke.Language, joke.AddedAt.UTC())
 
 	if err != nil {
 		return err

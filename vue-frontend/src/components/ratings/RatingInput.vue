@@ -55,6 +55,12 @@ export default defineComponent({
             type: [Number, Number as () => number | undefined],
             required: true,
         },
+
+        loading: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     setup() {

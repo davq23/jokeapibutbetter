@@ -1,15 +1,19 @@
 <template>
     <div>
+        <slot></slot>
         <v-card
             style="white-space: pre"
             v-for="joke in jokes"
             :key="joke.id"
             :text="joke.text"
+            @click="$emit('joke-select', joke.id)"
             :prepend-icon="`fib fi-${getFlagClassByLanguage(joke.lang)}`"
-            :subtitle="`Posted  by ${joke.user?.username} at ${formatDate(
-                joke.added_at,
-            )}`">
-            <div style="margin-right: 1rem; text-align: end">
+            :subtitle="`Posted  by ${joke.user?.username}  ${
+                joke.added_at ? `${formatDate(joke.added_at)}` : ''
+            }`">
+            <div
+                style="margin-right: 1rem; text-align: end"
+                v-if="joke.author_id !== user.id">
                 <rating-input
                     v-if="user.id"
                     title="Your rating"
@@ -44,6 +48,11 @@ export default defineComponent({
     },
 
     props: {
+        fetchMyRatings: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
         jokes: {
             type: Array as PropType<Joke[]>,
             required: true,

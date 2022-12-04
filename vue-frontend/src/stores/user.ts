@@ -9,6 +9,7 @@ export interface UserState {
     username: string | null;
     email: string | null;
     authLoaded: boolean;
+    roles: string[];
 }
 
 export const useUserStore = defineStore('user', {
@@ -18,6 +19,7 @@ export const useUserStore = defineStore('user', {
             username: null,
             email: null,
             authLoaded: false,
+            roles: [],
         };
     },
 
@@ -26,10 +28,12 @@ export const useUserStore = defineStore('user', {
             id: string | null,
             username: string | null,
             email: string | null,
+            roles: string[],
         ) {
             this.$state.id = id;
             this.$state.username = username;
             this.$state.email = email;
+            this.$state.roles = roles;
         },
 
         setAuthLoaded(authLoaded: boolean) {
@@ -37,7 +41,7 @@ export const useUserStore = defineStore('user', {
         },
 
         emptyCurrentUser() {
-            this.setCurrentUser(null, null, null);
+            this.setCurrentUser(null, null, null, []);
         },
 
         async login(user: string, password: string): Promise<StandardResponse> {
@@ -53,10 +57,10 @@ export const useUserStore = defineStore('user', {
                 })
                 .then((jsonResponse: StandardResponse) => {
                     if (jsonResponse.status === 200) {
-                        const { user_id, email, username, token } =
+                        const { user_id, email, username, roles, token } =
                             jsonResponse.data as AuthResponse;
 
-                        this.setCurrentUser(user_id, username, email);
+                        this.setCurrentUser(user_id, username, email, roles);
 
                         localStorage.setItem('token', token);
                     }
@@ -78,34 +82,30 @@ export const useUserStore = defineStore('user', {
             // Send request to invalidate tokens
         },
 
-        whoIAm() {
+        async whoIAm() {
             const userService = new UserService(
                 import.meta.env.VITE_JOKEAPI_URL ?? 'api',
                 localStorage.getItem('token'),
             );
 
-            return userService
-                .whoIAm()
-                .then((response) => {
-                    return response.json();
-                })
-                .then((jsonResponse: StandardResponse) => {
-                    if (jsonResponse.status === 200) {
-                        const { id, email, username } =
-                            jsonResponse.data as User;
+            try {
+                const response = await userService.whoIAm();
+                const jsonResponse = await response.json();
+                if (jsonResponse.status === 200) {
+                    const { id, email, username, roles } =
+                        jsonResponse.data as User;
 
-                        this.setCurrentUser(id, username, email);
+                    this.setCurrentUser(id, username, email, roles);
 
-                        if (jsonResponse.token) {
-                            localStorage.setItem('token', jsonResponse.token);
-                        }
-                    } else {
-                        this.emptyCurrentUser();
+                    if (jsonResponse.token) {
+                        localStorage.setItem('token', jsonResponse.token);
                     }
-                })
-                .finally(() => {
-                    this.setAuthLoaded(true);
-                });
+                } else {
+                    this.emptyCurrentUser();
+                }
+            } finally {
+                this.setAuthLoaded(true);
+            }
         },
     },
 });

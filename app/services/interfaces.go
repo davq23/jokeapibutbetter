@@ -17,7 +17,7 @@ type UserInterface interface {
 type JokeInterface interface {
 	FindByID(c context.Context, id string) (*data.Joke, error)
 	Save(c context.Context, joke *data.Joke) error
-	FindAll(c context.Context, limit uint64, lang string, direction uint64, addedAtOffset uint64) ([]*data.Joke, error)
+	FindAll(c context.Context, limit uint64, lang string, userID string, direction uint64, addedAtOffset uint64) ([]*data.Joke, error)
 }
 
 type RatingsInterface interface {
