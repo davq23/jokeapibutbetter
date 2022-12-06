@@ -45,6 +45,15 @@ export const useUserStore = defineStore('user', {
             this.setCurrentUser(null, null, null, []);
         },
 
+        getAsUserData(): User {
+            return {
+                id: this.$state.id ?? '',
+                username: this.$state.username ?? '',
+                email: this.$state.email ?? '',
+                roles: this.$state.roles ?? [],
+            };
+        },
+
         async login(user: string, password: string): Promise<StandardResponse> {
             const userService = new UserService(
                 Config.apiUrl,

@@ -1,5 +1,10 @@
 <template>
-    <user-info-form @submit="onSubmit"></user-info-form>
+    <v-container>
+        <user-info-form
+            v-if="user !== null"
+            @submit="onSubmit"
+            :user="user.getAsUserData()"></user-info-form>
+    </v-container>
 </template>
 
 <script lang="ts">
@@ -10,6 +15,7 @@ import UserService from '@/services/user.service';
 import Config from '@/config/Config';
 import type StandardResponse from '@/libs/standard';
 import { useAlertStore } from '@/stores/alert';
+import { useUserStore } from '@/stores/user';
 
 export default defineComponent({
     components: {
@@ -18,8 +24,6 @@ export default defineComponent({
 
     methods: {
         onSubmit(user: User) {
-            user.id = '';
-
             const userService = new UserService(
                 Config.apiUrl,
                 localStorage.getItem('token'),
@@ -45,8 +49,9 @@ export default defineComponent({
 
     setup() {
         const alert = useAlertStore();
+        const user = useUserStore();
 
-        return { alert };
+        return { alert, user };
     },
 });
 </script>

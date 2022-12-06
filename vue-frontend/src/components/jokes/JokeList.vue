@@ -48,6 +48,8 @@ export default defineComponent({
         VCard,
     },
 
+    emits: ['joke-select'],
+
     props: {
         fetchMyRatings: {
             type: Boolean,

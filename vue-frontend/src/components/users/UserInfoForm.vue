@@ -39,18 +39,21 @@ export default defineComponent({
         },
     },
 
-    mounted() {
-        if (this.user) {
-            this.id = this.user.id;
-            this.username = this.user.username;
-            this.email = this.user.email;
-            this.roles = this.user.roles;
-        }
+    watch: {
+        user(newUser: User | null) {
+            console.log(newUser);
+            if (newUser) {
+                this.id = newUser.id;
+                this.username = newUser.username;
+                this.email = newUser.email;
+                this.roles = newUser.roles;
+            }
+        },
     },
 
     props: {
         user: {
-            type: Object as PropType<User | null>,
+            type: Object as PropType<User>,
             required: false,
             default: null,
         },

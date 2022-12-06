@@ -19,8 +19,11 @@ export default defineComponent({
     emits: ['update:modelValue'],
     methods: {
         setClickStars(event: MouseEvent) {
+            event.stopPropagation();
+
             if (
                 !this.disabled &&
+                !this.readonly &&
                 this.starsOuter !== null &&
                 event &&
                 event.target instanceof HTMLElement
@@ -57,6 +60,12 @@ export default defineComponent({
         },
 
         loading: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        readonly: {
             type: Boolean,
             required: false,
             default: false,

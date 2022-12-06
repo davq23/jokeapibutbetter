@@ -15,6 +15,11 @@ const router = createRouter({
             component: () => import('../views/jokes/JokesView.vue'),
         },
         {
+            name: 'joke-view',
+            path: '/jokes/:id',
+            component: () => import('../views/jokes/SingleJokeView.vue'),
+        },
+        {
             meta: {
                 roles: ['ADMIN'],
                 authRequired: true,
@@ -40,6 +45,15 @@ const router = createRouter({
             name: 'my-jokes',
             path: '/jokes/mine',
             component: () => import('../views/jokes/MyJokes.vue'),
+        },
+        {
+            meta: {
+                authRequired: true,
+                self: true,
+            },
+            name: 'user-preferences',
+            path: '/users/preferences',
+            component: () => import('../views/users/UserPreferencesView.vue'),
         },
         {
             name: 'about',

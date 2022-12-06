@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="jokes !== null">
-            <joke-list :jokes="jokes" />
+            <joke-list :jokes="jokes" @joke-select="onJokeSelect" />
         </div>
         <div
             v-else
@@ -112,6 +112,10 @@ export default defineComponent({
                         this.assignRatings(jsonResponse.data as Rating[]);
                     }
                 });
+        },
+
+        onJokeSelect(jokeID: string) {
+            this.$router.push(`/jokes/${jokeID}`);
         },
     },
 
