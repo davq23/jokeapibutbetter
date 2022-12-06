@@ -3,7 +3,7 @@
         <p>{{ title }}</p>
         <div class="stars-outer" @click="setClickStars" ref="starsOuter">
             <div
-                class="stars-inner"
+                class="stars-inner fa"
                 :style="`width: ${
                     ((modelValue !== undefined ? modelValue : 0) / maxStars) *
                     100

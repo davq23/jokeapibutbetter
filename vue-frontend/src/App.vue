@@ -3,7 +3,7 @@
         <template v-if="user.authLoaded">
             <v-app-bar theme="dark">
                 <v-toolbar-title>
-                    <span class="app-bar-title"></span> Joke API Explorer
+                    <i class="fa-solid fa-masks-theater"></i> Joke API Explorer
                 </v-toolbar-title>
                 <v-btn
                     variant="text"
@@ -126,9 +126,4 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.app-bar-title::before {
-    font-family: 'FontAwesome';
-    content: '\f630';
-}
-</style>
+<style scoped></style>
