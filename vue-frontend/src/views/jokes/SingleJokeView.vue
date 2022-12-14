@@ -1,5 +1,18 @@
 <template>
-    <joke-card v-if="joke !== null" :joke="joke"></joke-card>
+    <joke-card v-if="joke !== null" :joke="joke">
+        <v-progress-circular
+            v-if="ratings === null"
+            indeterminate
+            color="secondary"></v-progress-circular>
+        <v-container v-else>
+            <h5>Ratings</h5>
+            <rating-input
+                v-for="(rating, index) in ratings"
+                :title="rating.user ? rating.user.username : 'User'"
+                v-model.number="rating.stars"
+                :key="index"></rating-input>
+        </v-container>
+    </joke-card>
     <v-progress-circular
         v-else
         indeterminate
@@ -14,19 +27,25 @@ import Config from '@/config/Config';
 import { JokeService } from '@/services/joke.service';
 import type StandardResponse from '@/libs/standard';
 import { useAlertStore } from '@/stores/alert';
+import RatingService from '@/services/rating.service';
+import type Rating from '@/data/rating';
+import RatingInput from '@/components/ratings/RatingInput.vue';
 
 interface SingleJokeView {
     joke: Joke | null;
+    ratings: Rating[] | null;
 }
 
 export default defineComponent({
     components: {
         JokeCard,
+        RatingInput,
     },
 
     data(): SingleJokeView {
         return {
             joke: null,
+            ratings: null,
         };
     },
 
@@ -53,6 +72,29 @@ export default defineComponent({
                     }
                 });
         },
+
+        getRatingsByJoke(id: string) {
+            const ratingService = new RatingService(
+                Config.apiUrl,
+                localStorage.getItem('token'),
+            );
+
+            ratingService
+                .getAllByJokeID(id)
+                .then((response: Response) => {
+                    return response.json();
+                })
+                .then((response: StandardResponse) => {
+                    if (response.status === 200) {
+                        this.ratings = response.data as Rating[];
+                    } else {
+                        this.alert.showAlert({
+                            messageType: 'error',
+                            message: response.message ?? 'Unknown error',
+                        });
+                    }
+                });
+        },
     },
 
     mounted() {
@@ -61,6 +103,7 @@ export default defineComponent({
             !(this.$route.params.id instanceof Array)
         ) {
             this.getJoke(this.$route.params.id);
+            this.getRatingsByJoke(this.$route.params.id);
         }
     },
 

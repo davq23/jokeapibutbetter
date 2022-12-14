@@ -1,6 +1,5 @@
 <template>
     <v-card
-        class="grow-on-hover"
         style="white-space: pre"
         :key="joke.id"
         :text="joke.text"
@@ -9,6 +8,7 @@
         :subtitle="`Posted  by ${joke.user?.username}  ${
             joke.added_at ? `${formatDate(joke.added_at)}` : ''
         }`">
+        <slot></slot>
     </v-card>
 </template>
 
@@ -22,7 +22,9 @@ import { formatDate } from '@/libs/convertDates';
 export default defineComponent({
     components: {},
 
-    data() {},
+    data() {
+        return {};
+    },
 
     methods: {
         formatDate(datetime: string) {

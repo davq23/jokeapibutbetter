@@ -19,4 +19,13 @@ export default class RatingService extends Service {
             null,
         );
     }
+
+    public getAllByJokeID(jokeID: string): Promise<Response> {
+        return this.sendRequest(
+            `jokes/${jokeID}/ratings`,
+            'GET',
+            new Headers(),
+            null,
+        );
+    }
 }

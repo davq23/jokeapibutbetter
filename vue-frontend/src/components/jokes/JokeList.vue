@@ -1,17 +1,12 @@
 <template>
     <div>
         <slot></slot>
-        <v-card
+        <joke-card
             class="grow-on-hover"
-            style="white-space: pre"
             v-for="joke in jokes"
             :key="joke.id"
-            :text="joke.text"
-            @click="$emit('joke-select', joke.id)"
-            :prepend-icon="`fib fi-${getFlagClassByLanguage(joke.lang)}`"
-            :subtitle="`Posted  by ${joke.user?.username}  ${
-                joke.added_at ? `${formatDate(joke.added_at)}` : ''
-            }`">
+            :joke="joke"
+            @click="$emit('joke-select', joke.id)">
             <div
                 style="margin-right: 1rem; text-align: end"
                 v-if="joke.author_id !== user.id">
@@ -24,7 +19,7 @@
                     "></rating-input>
                 <span v-else>Log in to rank this joke</span>
             </div>
-        </v-card>
+        </joke-card>
     </div>
 </template>
 
@@ -33,7 +28,6 @@ import type Joke from '@/data/joke';
 import RatingInput from '@/components/ratings/RatingInput.vue';
 import { formatDate } from '@/libs/convertDates';
 
-import { VCard } from 'vuetify/components';
 import { defineComponent } from 'vue';
 import type { PropType } from 'vue';
 import { getFlagClassByLanguage } from '@/libs/internationalization';
@@ -41,11 +35,12 @@ import { useUserStore } from '@/stores/user';
 import Config from '@/config/Config';
 import RatingService from '@/services/rating.service';
 import type StandardResponse from '@/libs/standard';
+import JokeCard from '@/components/jokes/JokeCard.vue';
 
 export default defineComponent({
     components: {
         RatingInput,
-        VCard,
+        JokeCard,
     },
 
     emits: ['joke-select'],
@@ -87,6 +82,7 @@ export default defineComponent({
                     joke_id: jokeID,
                     stars,
                     comment: '',
+                    user: undefined,
                 })
                 .then((response) => {
                     return response.json();
