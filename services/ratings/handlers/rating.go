@@ -43,7 +43,7 @@ func (rt *Rating) GetByUserID(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		formatter.WriteFormatted(w, libs.StandardReponse{
 			Status:  http.StatusNotFound,
-			Message: "User not found",
+			Message: err.Error(),
 		})
 		return
 	}
@@ -71,7 +71,7 @@ func (rt *Rating) GetByJokeID(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		formatter.WriteFormatted(w, libs.StandardReponse{
 			Status:  http.StatusNotFound,
-			Message: "User not found",
+			Message: err.Error(),
 		})
 		return
 	}
@@ -100,7 +100,7 @@ func (rt *Rating) GetByJokeIDAndUserID(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		formatter.WriteFormatted(w, libs.StandardReponse{
 			Status:  http.StatusNotFound,
-			Message: "User not found",
+			Message: err.Error(),
 		})
 		return
 	}

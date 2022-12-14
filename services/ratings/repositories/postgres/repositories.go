@@ -42,11 +42,12 @@ func (r *Rating) GetByJokeIDAndUserID(ctx context.Context, jokeID, userID string
 }
 
 func (r *Rating) GetAllByJokeID(ctx context.Context, jokeID string) ([]*data.Rating, error) {
-	var ratings []*data.Rating
+	var ratings []*data.Rating = make([]*data.Rating, 0)
 
 	statement, err := r.db.PrepareContext(
 		ctx,
-		"SELECT uuid, stars, comment, user_id, joke_id FROM ratings WHERE joke_id = $1 AND deleted_at IS NULL",
+		"SELECT r.uuid, r.stars, r.comment, r.user_id, r.joke_id, u.email, u.username FROM ratings r"+
+			" INNER JOIN users u ON r.user_id = u.uuid WHERE r.joke_id = $1 AND r.deleted_at IS NULL",
 	)
 
 	if err != nil {
@@ -66,7 +67,11 @@ func (r *Rating) GetAllByJokeID(ctx context.Context, jokeID string) ([]*data.Rat
 	for rows.Next() {
 		rating := &data.Rating{}
 
-		err = rows.Scan(&rating.ID, &rating.Stars, &rating.Comment, &rating.UserID, &rating.JokeID)
+		rating.User = &data.User{}
+
+		err = rows.Scan(&rating.ID, &rating.Stars, &rating.Comment, &rating.UserID, &rating.JokeID, &rating.User.Email, &rating.User.Username)
+
+		rating.User.ID = rating.UserID
 
 		if err != nil {
 			return nil, err
@@ -79,7 +84,7 @@ func (r *Rating) GetAllByJokeID(ctx context.Context, jokeID string) ([]*data.Rat
 }
 
 func (r *Rating) GetAllByUserID(ctx context.Context, userID string) ([]*data.Rating, error) {
-	var ratings []*data.Rating
+	var ratings []*data.Rating = make([]*data.Rating, 0)
 
 	statement, err := r.db.PrepareContext(
 		ctx,
