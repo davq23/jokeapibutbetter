@@ -1,5 +1,6 @@
 <template>
     <v-card
+        variant="text"
         style="white-space: pre"
         :key="joke.id"
         :text="joke.text"

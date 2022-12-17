@@ -4,13 +4,28 @@
             v-if="ratings === null"
             indeterminate
             color="secondary"></v-progress-circular>
-        <v-container v-else>
+        <v-container fluid v-else-if="ratings.length > 0">
             <h5>Ratings</h5>
             <rating-input
                 v-for="(rating, index) in ratings"
                 :title="rating.user ? rating.user.username : 'User'"
                 v-model.number="rating.stars"
+                :disabled="rating.user && rating.user.id !== user.id"
+                @update:modelValue="
+                    joke ? publishRating($event, joke.id) : null
+                "
                 :key="index"></rating-input>
+        </v-container>
+        <v-container fluid v-else>
+            <h5>Be the first to rate this joke</h5>
+            <rating-input
+                v-if="user.id"
+                title="Your rating"
+                v-model.number="joke.stars"
+                @update:modelValue="
+                    joke ? publishRating($event, joke.id) : null
+                "></rating-input>
+            <span v-else>Log in to rank this joke</span>
         </v-container>
     </joke-card>
     <v-progress-circular
@@ -30,6 +45,7 @@ import { useAlertStore } from '@/stores/alert';
 import RatingService from '@/services/rating.service';
 import type Rating from '@/data/rating';
 import RatingInput from '@/components/ratings/RatingInput.vue';
+import { useUserStore } from '@/stores/user';
 
 interface SingleJokeView {
     joke: Joke | null;
@@ -95,6 +111,35 @@ export default defineComponent({
                     }
                 });
         },
+
+        publishRating(stars: number, jokeID: string) {
+            if (this.user.id === null) {
+                return;
+            }
+            const ratingService = new RatingService(
+                Config.apiUrl,
+                localStorage.getItem('token'),
+            );
+
+            ratingService
+                .rate({
+                    id: '',
+                    user_id: this.user.id,
+                    joke_id: jokeID,
+                    stars,
+                    comment: '',
+                    user: undefined,
+                })
+                .then((response) => {
+                    return response.json();
+                })
+                .then((jsonResponse: StandardResponse) => {
+                    if (jsonResponse.status == 200) {
+                        this.ratings = null;
+                        this.getRatingsByJoke(jokeID);
+                    }
+                });
+        },
     },
 
     mounted() {
@@ -109,9 +154,11 @@ export default defineComponent({
 
     setup() {
         const alert = useAlertStore();
+        const user = useUserStore();
 
         return {
             alert,
+            user,
         };
     },
 });
