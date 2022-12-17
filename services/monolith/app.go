@@ -15,6 +15,7 @@ import (
 	"github.com/davq23/jokeapibutbetter/app/libs"
 	"github.com/davq23/jokeapibutbetter/app/middlewares"
 	configHandlers "github.com/davq23/jokeapibutbetter/services/config/handlers"
+	gatewayHandlers "github.com/davq23/jokeapibutbetter/services/gateway/handlers"
 	jokeHandlers "github.com/davq23/jokeapibutbetter/services/jokes/handlers"
 	jokePostgres "github.com/davq23/jokeapibutbetter/services/jokes/repositories/postgres"
 	jokeServices "github.com/davq23/jokeapibutbetter/services/jokes/services"
@@ -168,6 +169,9 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	getRoutes.Handle("/jokes", authMiddlware.GetCurrentUserMiddleware(
 		userInjector.UserInjectorMiddleware(http.HandlerFunc(jh.GetAll)),
 	))
+
+	// Hello route
+	getRoutes.HandleFunc("/", gatewayHandlers.Hello)
 }
 
 func (a *App) Setup() error {
