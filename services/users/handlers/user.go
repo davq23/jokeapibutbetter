@@ -30,7 +30,7 @@ func NewUser(userService services.UserInterface, logger *log.Logger, jwtSecret s
 	}
 }
 
-func (u *User) CurrentUser(w http.ResponseWriter, r *http.Request) {
+func (u User) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	formatter, okFormatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 	userID, okUserID := r.Context().Value(middlewares.CurrentUserIDKey{}).(string)
 
@@ -59,27 +59,6 @@ func (u *User) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	user.Hash = ""
 	newToken := ""
 
-	/*_, refreshRequired := r.Context().Value(middlewares.RefreshSecretKey{}).(bool)
-
-	if refreshRequired {
-		claims := middlewares.AuthClaims{
-			UserID: user.ID,
-			StandardClaims: jwt.StandardClaims{
-				IssuedAt:  time.Now().Unix(),
-				ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
-			},
-		}
-
-		newToken, err = utilities.SignJWT(claims, u.jwtSecret)
-
-		if err != nil {
-			formatter.WriteFormatted(w, libs.StandardReponse{
-				Status:  http.StatusInternalServerError,
-				Message: "Error occured",
-			})
-		}
-	}*/
-
 	formatter.WriteFormatted(w, libs.StandardReponse{
 		Status: http.StatusOK,
 		Data:   user,
@@ -87,18 +66,7 @@ func (u *User) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (u *User) SayHello(w http.ResponseWriter, r *http.Request) {
-	formatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
-
-	var aaa map[string]string = make(map[string]string)
-
-	aaa["aaa"] = "akfdkafk"
-	aaa["bbb"] = "akfdkafk"
-
-	formatter.WriteFormatted(w, aaa)
-}
-
-func (u *User) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
+func (u User) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	formatter, okFormatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 	auth, okAuth := r.Context().Value(middlewares.ValidatedBodyContextKey{}).(*libs.AuthRequest)
 
@@ -164,7 +132,7 @@ func (u *User) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	}})
 }
 
-func (u *User) GetOne(w http.ResponseWriter, r *http.Request) {
+func (u User) GetOne(w http.ResponseWriter, r *http.Request) {
 	formatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 	data := mux.Vars(r)
 	id, ok := data["id"]
@@ -195,7 +163,7 @@ func (u *User) GetOne(w http.ResponseWriter, r *http.Request) {
 	formatter.WriteFormatted(w, libs.StandardReponse{Status: http.StatusOK, Data: user})
 }
 
-func (u *User) Save(w http.ResponseWriter, r *http.Request) {
+func (u User) Save(w http.ResponseWriter, r *http.Request) {
 	formatter, okFormatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 	user, okUser := r.Context().Value(middlewares.ValidatedBodyContextKey{}).(*data.User)
 

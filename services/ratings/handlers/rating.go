@@ -23,7 +23,7 @@ func NewRating(ratingService *services.Rating, logger *log.Logger) *Rating {
 	}
 }
 
-func (rt *Rating) GetByUserID(w http.ResponseWriter, r *http.Request) {
+func (rt Rating) GetByUserID(w http.ResponseWriter, r *http.Request) {
 	formatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 	data := mux.Vars(r)
 	userID, ok := data["user_id"]
@@ -51,7 +51,7 @@ func (rt *Rating) GetByUserID(w http.ResponseWriter, r *http.Request) {
 	formatter.WriteFormatted(w, libs.StandardReponse{Status: http.StatusOK, Data: ratings})
 }
 
-func (rt *Rating) GetByJokeID(w http.ResponseWriter, r *http.Request) {
+func (rt Rating) GetByJokeID(w http.ResponseWriter, r *http.Request) {
 	formatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 	data := mux.Vars(r)
 	jokeID, ok := data["joke_id"]
@@ -79,7 +79,7 @@ func (rt *Rating) GetByJokeID(w http.ResponseWriter, r *http.Request) {
 	formatter.WriteFormatted(w, libs.StandardReponse{Status: http.StatusOK, Data: ratings})
 }
 
-func (rt *Rating) GetByJokeIDAndUserID(w http.ResponseWriter, r *http.Request) {
+func (rt Rating) GetByJokeIDAndUserID(w http.ResponseWriter, r *http.Request) {
 	formatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 	data := mux.Vars(r)
 	jokeID, okJokeID := data["joke_id"]
@@ -108,7 +108,7 @@ func (rt *Rating) GetByJokeIDAndUserID(w http.ResponseWriter, r *http.Request) {
 	formatter.WriteFormatted(w, libs.StandardReponse{Status: http.StatusOK, Data: ratings})
 }
 
-func (rt *Rating) Save(w http.ResponseWriter, r *http.Request) {
+func (rt Rating) Save(w http.ResponseWriter, r *http.Request) {
 	formatter, okFormatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 	rating, okRating := r.Context().Value(middlewares.ValidatedBodyContextKey{}).(*data.Rating)
 

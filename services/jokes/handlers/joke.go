@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -27,29 +25,7 @@ func NewJoke(jokeService services.JokeInterface, logger *log.Logger) *Joke {
 	}
 }
 
-func (j *Joke) SayHello(w http.ResponseWriter, r *http.Request) {
-	client := &http.Client{}
-
-	response, err := client.Get("http://host.docker.internal:8080/hello")
-
-	if err != nil {
-		io.WriteString(w, err.Error())
-		return
-	}
-
-	defer response.Body.Close()
-
-	bytes, err := ioutil.ReadAll(response.Body)
-
-	if err != nil {
-		io.WriteString(w, err.Error())
-		return
-	}
-
-	w.Write(bytes)
-}
-
-func (j *Joke) GetByID(w http.ResponseWriter, r *http.Request) {
+func (j Joke) GetByID(w http.ResponseWriter, r *http.Request) {
 	formatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 	data := mux.Vars(r)
 	id, ok := data["id"]
@@ -78,7 +54,7 @@ func (j *Joke) GetByID(w http.ResponseWriter, r *http.Request) {
 	formatter.WriteFormatted(w, libs.StandardReponse{Status: http.StatusOK, Data: joke})
 }
 
-func (j *Joke) GetAll(w http.ResponseWriter, r *http.Request) {
+func (j Joke) GetAll(w http.ResponseWriter, r *http.Request) {
 	formatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 	userID := r.URL.Query().Get("author_id")
 	limit, _ := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 64)
@@ -128,7 +104,7 @@ func (j *Joke) GetAll(w http.ResponseWriter, r *http.Request) {
 	formatter.WriteFormatted(w, response)
 }
 
-func (j *Joke) Save(w http.ResponseWriter, r *http.Request) {
+func (j Joke) Save(w http.ResponseWriter, r *http.Request) {
 	formatter, okFormatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
 
 	joke, okJoke := r.Context().Value(middlewares.ValidatedBodyContextKey{}).(*data.Joke)
