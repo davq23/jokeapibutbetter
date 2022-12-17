@@ -1,9 +1,16 @@
-<script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
-</script>
-
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+    <main>
+        <welcome-panel />
+    </main>
 </template>
+
+<script lang="ts">
+import WelcomePanel from '@/components/WelcomePanel.vue';
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+    components: {
+        WelcomePanel,
+    },
+});
+</script>

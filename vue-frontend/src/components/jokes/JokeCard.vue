@@ -1,10 +1,10 @@
 <template>
     <v-card
-        variant="text"
         style="white-space: pre"
         :key="joke.id"
         :text="joke.text"
-        @click="$emit('joke-select', joke.id)"
+        variant="flat"
+        @click="!readonly ? $emit('joke-select', joke.id) : null"
         :prepend-icon="`fib fi-${getFlagClassByLanguage(joke.lang)}`"
         :subtitle="`Posted  by ${joke.user?.username}  ${
             joke.added_at ? `${formatDate(joke.added_at)}` : ''
@@ -41,6 +41,11 @@ export default defineComponent({
         joke: {
             type: Object as PropType<Joke>,
             required: true,
+        },
+        readonly: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 });

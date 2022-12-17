@@ -11,8 +11,13 @@ const router = createRouter({
     routes: [
         {
             name: 'jokes',
-            path: '/dashboard',
+            path: '/jokes',
             component: () => import('../views/jokes/JokesView.vue'),
+        },
+        {
+            name: 'home',
+            path: '/',
+            component: () => import('../views/HomeView.vue'),
         },
         {
             name: 'joke-view',
@@ -94,7 +99,7 @@ router.beforeResolve(
 
             if (roleIntersection.length === 0) {
                 return {
-                    name: 'dashboard',
+                    name: 'home',
                 };
             }
         }

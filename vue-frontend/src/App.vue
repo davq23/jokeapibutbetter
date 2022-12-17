@@ -2,7 +2,9 @@
     <v-layout @change="alert.message = ''" @click="alert.message = ''">
         <template v-if="user.authLoaded">
             <v-app-bar theme="dark">
-                <v-toolbar-title>
+                <v-toolbar-title
+                    @click="$router.push('/')"
+                    class="cursor-pointer">
                     <i class="fa-solid fa-masks-theater"></i> Joke API Explorer
                 </v-toolbar-title>
                 <v-btn
@@ -31,7 +33,12 @@
                         prepend-icon="mdi-home"
                         title="Home"
                         router
-                        :to="'/dashboard'"></v-list-item>
+                        :to="'/'"></v-list-item>
+                    <v-list-item
+                        prepend-icon="mdi-script-text"
+                        title="All Jokes"
+                        router
+                        :to="'/jokes'"></v-list-item>
                     <v-list-item
                         v-if="user.id && user.roles.includes('ADMIN')"
                         prepend-icon="mdi-star"
@@ -94,18 +101,15 @@ export default defineComponent({
         VNavigationDrawer,
     },
 
+    created() {
+        this.deviceWidth = window.innerWidth;
+    },
+
     data() {
         return {
             drawer: false,
             deviceWidth: 0,
         };
-    },
-
-    setup() {
-        const user = useUserStore();
-        const alert = useAlertStore();
-
-        return { user, alert };
     },
 
     methods: {
@@ -120,10 +124,17 @@ export default defineComponent({
         },
     },
 
-    created() {
-        this.deviceWidth = window.innerWidth;
+    setup() {
+        const user = useUserStore();
+        const alert = useAlertStore();
+
+        return { user, alert };
     },
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.cursor-pointer:hover {
+    cursor: pointer;
+}
+</style>

@@ -1,5 +1,5 @@
 <template>
-    <joke-card v-if="joke !== null" :joke="joke">
+    <joke-card readonly v-if="joke !== null" :joke="joke">
         <v-progress-circular
             v-if="ratings === null"
             indeterminate
