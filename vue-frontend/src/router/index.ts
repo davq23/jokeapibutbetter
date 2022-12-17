@@ -12,22 +12,32 @@ const router = createRouter({
         {
             name: 'jokes',
             path: '/jokes',
+            meta: {
+                title: 'All Jokes',
+            },
             component: () => import('../views/jokes/JokesView.vue'),
         },
         {
             name: 'home',
             path: '/',
+            meta: {
+                title: 'Joke API Explorer',
+            },
             component: () => import('../views/HomeView.vue'),
         },
         {
             name: 'joke-view',
             path: '/jokes/:id',
+            meta: {
+                title: 'Joke View',
+            },
             component: () => import('../views/jokes/SingleJokeView.vue'),
         },
         {
             meta: {
                 roles: ['ADMIN'],
                 authRequired: true,
+                title: 'New Joke',
             },
             name: 'new-joke',
             path: '/jokes/new',
@@ -37,6 +47,7 @@ const router = createRouter({
             meta: {
                 roles: ['ADMIN'],
                 authRequired: true,
+                title: 'Edit Joke',
             },
             name: 'edit-joke',
             path: '/jokes/:id/edit',
@@ -46,6 +57,7 @@ const router = createRouter({
             meta: {
                 roles: ['ADMIN'],
                 authRequired: true,
+                title: 'My Jokes',
             },
             name: 'my-jokes',
             path: '/jokes/mine',
@@ -55,6 +67,7 @@ const router = createRouter({
             meta: {
                 authRequired: true,
                 self: true,
+                title: 'User Preferences',
             },
             name: 'user-preferences',
             path: '/users/preferences',
@@ -71,39 +84,44 @@ const router = createRouter({
         {
             path: '/login',
             name: 'login',
+            meta: {
+                title: 'Login',
+            },
             component: () => import('../views/auth/LoginView.vue'),
         },
     ],
 });
 
-router.beforeResolve(
-    async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
-        const user = useUserStore();
+router.beforeResolve(async (to: RouteLocationNormalized) => {
+    const user = useUserStore();
 
-        user.setAuthLoaded(false);
+    user.setAuthLoaded(false);
 
-        await user.whoIAm();
+    await user.whoIAm();
 
-        user.setAuthLoaded(true);
+    user.setAuthLoaded(true);
 
-        if (to.meta.authRequired === true && user.id === null) {
+    if (to.meta && to.meta.title) {
+        document.title = to.meta.title as string;
+    }
+
+    if (to.meta.authRequired === true && user.id === null) {
+        return {
+            name: 'login',
+        };
+    }
+
+    if (to.meta && to.meta.roles && to.meta.roles instanceof Array) {
+        const roleIntersection = to.meta.roles.filter((role) =>
+            user.roles.includes(role),
+        );
+
+        if (roleIntersection.length === 0) {
             return {
-                name: 'login',
+                name: 'home',
             };
         }
-
-        if (to.meta && to.meta.roles && to.meta.roles instanceof Array) {
-            const roleIntersection = to.meta.roles.filter((role) =>
-                user.roles.includes(role),
-            );
-
-            if (roleIntersection.length === 0) {
-                return {
-                    name: 'home',
-                };
-            }
-        }
-    },
-);
+    }
+});
 
 export default router;

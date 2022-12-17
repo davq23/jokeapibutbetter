@@ -8,12 +8,16 @@
             <h5>Ratings</h5>
             <rating-input
                 v-for="(rating, index) in ratings"
-                :title="rating.user ? rating.user.username : 'User'"
+                :title="
+                    rating.user
+                        ? rating.user.id === user.id
+                            ? 'Your rating'
+                            : rating.user.username
+                        : 'User'
+                "
                 v-model.number="rating.stars"
                 :disabled="rating.user && rating.user.id !== user.id"
-                @update:modelValue="
-                    joke ? publishRating($event, joke.id) : null
-                "
+                @update:modelValue="joke ? publishRating($event) : null"
                 :key="index"></rating-input>
         </v-container>
         <v-container fluid v-else>
@@ -23,7 +27,7 @@
                 title="Your rating"
                 v-model.number="joke.stars"
                 @update:modelValue="
-                    joke ? publishRating($event, joke.id) : null
+                    joke ? publishRating($event) : null
                 "></rating-input>
             <span v-else>Log in to rank this joke</span>
         </v-container>
@@ -112,7 +116,7 @@ export default defineComponent({
                 });
         },
 
-        publishRating(stars: number, jokeID: string) {
+        publishRating(stars: number) {
             if (this.user.id === null) {
                 return;
             }
@@ -125,7 +129,7 @@ export default defineComponent({
                 .rate({
                     id: '',
                     user_id: this.user.id,
-                    joke_id: jokeID,
+                    joke_id: this.$route.params.id as string,
                     stars,
                     comment: '',
                     user: undefined,
@@ -136,7 +140,7 @@ export default defineComponent({
                 .then((jsonResponse: StandardResponse) => {
                     if (jsonResponse.status == 200) {
                         this.ratings = null;
-                        this.getRatingsByJoke(jokeID);
+                        this.getRatingsByJoke(this.$route.params.id as string);
                     }
                 });
         },
