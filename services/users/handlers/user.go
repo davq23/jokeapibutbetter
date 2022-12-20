@@ -15,19 +15,91 @@ import (
 )
 
 type User struct {
-	jwtSecret     string
-	refreshSecret string
-	userService   services.UserInterface
-	logger        *log.Logger
+	jwtSecret      string
+	refreshSecret  string
+	userService    services.UserInterface
+	storageManager libs.StorageManager
+	logger         *log.Logger
 }
 
-func NewUser(userService services.UserInterface, logger *log.Logger, jwtSecret string, refreshSecret string) *User {
+func NewUser(
+	storageManager libs.StorageManager,
+	userService services.UserInterface,
+	logger *log.Logger,
+	jwtSecret string,
+	refreshSecret string,
+) *User {
 	return &User{
-		jwtSecret:     jwtSecret,
-		refreshSecret: refreshSecret,
-		userService:   userService,
-		logger:        logger,
+		jwtSecret:      jwtSecret,
+		refreshSecret:  refreshSecret,
+		userService:    userService,
+		logger:         logger,
+		storageManager: storageManager,
 	}
+}
+
+func (u User) GetUploadProfilePictureURL(w http.ResponseWriter, r *http.Request) {
+	formatter, okFormatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
+	userID, okUserID := r.Context().Value(middlewares.CurrentUserIDKey{}).(string)
+
+	if !okUserID || !okFormatter {
+		w.WriteHeader(http.StatusBadRequest)
+		u.logger.Println("Valid user or formatter body not found")
+		formatter.WriteFormatted(w, libs.StandardReponse{
+			Status:  http.StatusBadRequest,
+			Message: "Invalid request",
+		})
+		return
+	}
+
+	url, err := u.storageManager.GetSignedUploadUrl("images/profile/"+userID+".jpg", "test", []string{"image"}, time.Hour)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInsufficientStorage)
+		u.logger.Println(err.Error())
+		formatter.WriteFormatted(w, libs.StandardReponse{
+			Status:  http.StatusInsufficientStorage,
+			Message: "Insufficient storage",
+		})
+		return
+	}
+
+	formatter.WriteFormatted(w, libs.StandardReponse{
+		Status: http.StatusOK,
+		Data:   url,
+	})
+}
+
+func (u User) GetDownloadProfilePictureURL(w http.ResponseWriter, r *http.Request) {
+	formatter, okFormatter := r.Context().Value(middlewares.FormatterContextKey{}).(libs.Formatter)
+	userID, okUserID := r.Context().Value(middlewares.CurrentUserIDKey{}).(string)
+
+	if !okUserID || !okFormatter {
+		w.WriteHeader(http.StatusBadRequest)
+		u.logger.Println("Valid user or formatter body not found")
+		formatter.WriteFormatted(w, libs.StandardReponse{
+			Status:  http.StatusBadRequest,
+			Message: "Invalid request",
+		})
+		return
+	}
+
+	url, err := u.storageManager.GetSignedDownloadUrl("images/profile/"+userID+".jpg", "test", time.Hour)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		u.logger.Println(err.Error())
+		formatter.WriteFormatted(w, libs.StandardReponse{
+			Status:  http.StatusNotFound,
+			Message: "Profile pic not found",
+		})
+		return
+	}
+
+	formatter.WriteFormatted(w, libs.StandardReponse{
+		Status: http.StatusOK,
+		Data:   url,
+	})
 }
 
 func (u User) CurrentUser(w http.ResponseWriter, r *http.Request) {

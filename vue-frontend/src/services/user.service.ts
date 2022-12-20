@@ -24,4 +24,22 @@ export default class UserService extends Service {
             JSON.stringify(user),
         );
     }
+
+    public getProfilePicUploadLink() {
+        return this.sendRequest(
+            `users/profile/upload`,
+            'GET',
+            new Headers(),
+            null,
+        );
+    }
+
+    public getProfilePicDownloadLink() {
+        return this.sendRequest(
+            `users/profile/download`,
+            'GET',
+            new Headers(),
+            null,
+        );
+    }
 }

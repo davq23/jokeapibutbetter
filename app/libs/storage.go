@@ -32,9 +32,9 @@ func (sm S3StorageManager) GetSignedDownloadUrl(filePath string, bucket string, 
 		Key:    &filePath,
 	})
 
-	url, _ := req.Presign(duration)
+	url, err := req.Presign(duration)
 
-	return url, nil
+	return url, err
 }
 
 func (sm S3StorageManager) GetSignedUploadUrl(filePath string, bucket string, fileTypes []string, duration time.Duration) (string, error) {
@@ -43,7 +43,7 @@ func (sm S3StorageManager) GetSignedUploadUrl(filePath string, bucket string, fi
 		Key:    &filePath,
 	})
 
-	url, _ := req.Presign(duration)
+	url, err := req.Presign(duration)
 
-	return url, nil
+	return url, err
 }

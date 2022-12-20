@@ -11,6 +11,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/davq23/jokeapibutbetter/app/data"
 	"github.com/davq23/jokeapibutbetter/app/libs"
 	"github.com/davq23/jokeapibutbetter/app/middlewares"
@@ -113,10 +117,20 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	ratingService := ratingServices.NewRating(jokeService, ratingRepository, userService)
 
 	userInjector := middlewares.NewUserInjector(userService)
+	s3Session := session.Must(session.NewSession(&aws.Config{
+		Credentials: credentials.NewStaticCredentials(
+			os.Getenv("AWS_ID"),
+			os.Getenv("AWS_SECRET"),
+			os.Getenv("AWS_TOKEN"),
+		),
+		Region: aws.String("us-west-2"),
+	}))
+
+	storageManager := libs.NewS3StorageManager(s3.New(s3Session))
 
 	// Handlers
 	ch := configHandlers.NewConfig()
-	uh := userHandlers.NewUser(userService, log.New(os.Stdout, "user api -", log.LstdFlags), config.APISecret, config.RefreshSecret)
+	uh := userHandlers.NewUser(storageManager, userService, log.New(os.Stdout, "user api -", log.LstdFlags), config.APISecret, config.RefreshSecret)
 	jh := jokeHandlers.NewJoke(jokeService, log.New(os.Stdout, "joke api -", log.LstdFlags))
 	rh := ratingHandlers.NewRating(ratingService, log.New(os.Stdout, "rating api -", log.LstdFlags))
 
@@ -157,7 +171,9 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 	getRoutes.Handle("/users/whoiam", authMiddlware.AuthMiddleware(http.HandlerFunc(uh.CurrentUser)))
 
 	// User-related routes
+	getRoutes.Handle("/users/profile/upload", authMiddlware.AuthMiddleware(http.HandlerFunc(uh.GetUploadProfilePictureURL)))
 	getRoutes.HandleFunc("/users/{id:"+data.IDRegexp+"}", uh.GetOne)
+	getRoutes.Handle("/users/profile/download", authMiddlware.AuthMiddleware(http.HandlerFunc(uh.GetDownloadProfilePictureURL)))
 
 	// Rating-related routes
 	getRoutes.HandleFunc("/users/{user_id:"+data.IDRegexp+"}/ratings", rh.GetByUserID)
