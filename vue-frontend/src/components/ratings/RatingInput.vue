@@ -95,7 +95,7 @@ export default defineComponent({
 
 .stars-inner {
     position: absolute;
-    top: 0;
+    top: 15%;
     left: 0;
     white-space: nowrap;
     overflow: hidden;
