@@ -62,6 +62,7 @@
                 <v-alert
                     prominent
                     v-if="alert.message"
+                    :icon="false"
                     :type="alert.messageType"
                     >{{ alert.message }}</v-alert
                 >

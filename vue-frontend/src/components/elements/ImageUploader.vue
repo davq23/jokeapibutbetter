@@ -54,7 +54,7 @@ export default defineComponent({
         uploadImage(uploadLink: string, file: File) {
             var xhr = new XMLHttpRequest();
 
-            xhr.open('POST', uploadLink, true);
+            xhr.open('PUT', uploadLink, true);
 
             xhr.onload = () => {
                 if (xhr.status === 200) {
@@ -70,6 +70,7 @@ export default defineComponent({
 
             xhr.onprogress = this.handleProgress;
 
+            xhr.withCredentials = true;
             xhr.setRequestHeader('Content-Type', file.type);
             xhr.send(file);
         },
