@@ -71,6 +71,7 @@ export default defineComponent({
             xhr.onprogress = this.handleProgress;
 
             xhr.withCredentials = true;
+            xhr.overrideMimeType(file.type);
             xhr.setRequestHeader('Content-Type', file.type);
             xhr.send(file);
         },
