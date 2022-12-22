@@ -123,7 +123,8 @@ func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
 			os.Getenv("AWS_SECRET"),
 			os.Getenv("AWS_TOKEN"),
 		),
-		Region: aws.String("us-west-2"),
+		Endpoint: aws.String(os.Getenv("AWS_ENDPOINT")),
+		Region:   aws.String("us-west-2"),
 	}))
 
 	storageManager := libs.NewS3StorageManager(s3.New(s3Session))
