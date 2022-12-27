@@ -2,7 +2,7 @@
     <v-container>
         <img :src="profilePicDownloadLink" v-if="profilePicDownloadLink" />
         <image-uploader
-            :upload-link="profilePicUploadLink"
+            :get-upload-link-callback="getProfilePicUploadLink"
             @upload-done="getProfilePicDownloadLink"
             @error="
                 alert.showAlert({
@@ -76,20 +76,10 @@ export default defineComponent({
                 localStorage.getItem('token'),
             );
 
-            userService
+            return userService
                 .getProfilePicUploadLink()
                 .then((response: Response) => {
                     return response.json();
-                })
-                .then((response: StandardResponse) => {
-                    if (response.status === 200) {
-                        this.profilePicUploadLink = response.data as string;
-                    } else {
-                        this.alert.showAlert({
-                            message: response.message ?? 'Unknown error',
-                            messageType: 'error',
-                        });
-                    }
                 });
         },
 
@@ -121,7 +111,6 @@ export default defineComponent({
 
     mounted() {
         this.getProfilePicDownloadLink();
-        this.getProfilePicUploadLink();
     },
 
     setup() {

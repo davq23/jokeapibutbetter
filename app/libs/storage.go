@@ -3,6 +3,7 @@ package libs
 import (
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
@@ -28,8 +29,9 @@ func NewS3StorageManager(s3Client *s3.S3) *S3StorageManager {
 
 func (sm S3StorageManager) GetSignedDownloadUrl(filePath string, bucket string, duration time.Duration) (string, error) {
 	req, _ := sm.s3Client.GetObjectRequest(&s3.GetObjectInput{
-		Bucket: &bucket,
-		Key:    &filePath,
+		Bucket:          &bucket,
+		Key:             &filePath,
+		ResponseExpires: aws.Time(time.Now().Add(duration)),
 	})
 
 	url, err := req.Presign(duration)
@@ -39,8 +41,9 @@ func (sm S3StorageManager) GetSignedDownloadUrl(filePath string, bucket string, 
 
 func (sm S3StorageManager) GetSignedUploadUrl(filePath string, bucket string, fileTypes []string, duration time.Duration) (string, error) {
 	req, _ := sm.s3Client.PutObjectRequest(&s3.PutObjectInput{
-		Bucket: &bucket,
-		Key:    &filePath,
+		Bucket:  &bucket,
+		Key:     &filePath,
+		Expires: aws.Time(time.Now().Add(duration)),
 	})
 
 	url, err := req.Presign(duration)

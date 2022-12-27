@@ -1,29 +1,32 @@
 <template>
-    <div
-        style="position: relative; background-color: red; height: 10rem"
-        @drop="handleDrop"
-        @dragover="handleDragOver"
-        @dragenter="handleDragOver"
-        @dragleave="handleDragOver">
-        <v-progress-circular
-            style="position: absolute"
-            v-if="uploadProgress !== null"
-            v-model="uploadProgress">
-        </v-progress-circular>
-        <div>
-            <h3>Drop here to upload image</h3>
-        </div>
+    <div style="position: relative; background-color: red; height: 10rem">
+        <file-drop-area
+            :fileTypes="['image/png', 'image/jpeg']"
+            @change="handleChangeDropArea"
+            @error="$emit('error', $event)">
+            <v-progress-circular
+                style="position: absolute; top: 50%; left: 50%"
+                v-if="uploadProgress !== null"
+                v-model="uploadProgress">
+            </v-progress-circular>
+        </file-drop-area>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import type { PropType } from 'vue';
+import FileDropArea from './FileDropArea.vue';
+import type StandardResponse from '@/libs/standard';
 
 interface ImageUploaderData {
     uploadProgress: null | string;
 }
 
 export default defineComponent({
+    components: {
+        FileDropArea,
+    },
     data(): ImageUploaderData {
         return {
             uploadProgress: null,
@@ -31,19 +34,20 @@ export default defineComponent({
     },
     emits: ['upload-done', 'error'],
     methods: {
-        handleDragOver(event: DragEvent) {
-            event.preventDefault();
-        },
-        handleDrop(event: DragEvent) {
-            event.preventDefault();
-            event.stopPropagation();
+        handleChangeDropArea(files: FileList) {
+            const imageFile = files.item(0);
 
-            if (
-                this.uploadLink &&
-                event.dataTransfer &&
-                event.dataTransfer.files.length > 0
-            ) {
-                this.uploadImage(this.uploadLink, event.dataTransfer?.files[0]);
+            if (imageFile) {
+                this.getUploadLinkCallback().then((response) => {
+                    if (response.status === 200) {
+                        this.uploadImage(response.data as string, imageFile);
+                    } else {
+                        this.$emit(
+                            'error',
+                            response.message ?? 'Unknown error',
+                        );
+                    }
+                });
             }
         },
         handleProgress(event: ProgressEvent) {
@@ -77,9 +81,9 @@ export default defineComponent({
         },
     },
     props: {
-        uploadLink: {
-            type: String,
-            required: false,
+        getUploadLinkCallback: {
+            type: Function as PropType<() => Promise<StandardResponse>>,
+            required: true,
         },
     },
 });
