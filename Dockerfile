@@ -39,14 +39,22 @@ RUN npm run build
 # Actually running the app
 FROM alpine
 
-RUN mkdir /dist
+RUN mkdir /app /app/dist
 
-COPY --from=build-backend /app/main /main
-COPY --from=build-frontend /app/dist/ /dist/
+RUN addgroup -g 1001 appgroup && \
+    adduser -S -u 1001 -G appgroup appuser
+
+RUN chown -R appuser:appgroup /app
+RUN chmod 755 /app
+
+COPY --from=build-backend /app/main /app/main
+COPY --from=build-frontend /app/dist/ /app/dist/
 
 EXPOSE 8080
 
-CMD ["/main"]
+USER appuser
+
+CMD ["/app/main"]
 
 
 
