@@ -47,7 +47,7 @@ func (a *App) Shutdown(ctx context.Context) error {
 }
 
 func (a *App) setupStaticRoutes(router *mux.Router) {
-	directory := os.DirFS("./dist")
+	directory := os.DirFS("dist")
 	fsHome := http.FileServer(http.FS(directory))
 
 	// Asset routes
