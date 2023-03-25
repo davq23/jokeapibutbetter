@@ -63,9 +63,7 @@ COPY upload-frontend-ftp/ /upload
 
 COPY --from=build-frontend /app/dist/ /upload/dist
 
-RUN cd upload/
-
-RUN php ftp_upload.php ${FTP_USERNAME} ${FTP_PASSWORD} ${FTP_HOST} ${FTP_PORT} 90
+RUN cd upload/; php ftp_upload.php ${FTP_USERNAME} ${FTP_PASSWORD} ${FTP_HOST} ${FTP_PORT} 90
 
 RUN touch finish.txt
 
