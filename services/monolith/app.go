@@ -236,7 +236,7 @@ func (a *App) Setup() error {
 	a.setupApiRoutes(router, &config)
 
 	// Static routes
-	a.setupStaticRoutes(router)
+	//a.setupStaticRoutes(router)
 
 	a.server = &http.Server{
 		Addr:         ":" + os.Getenv("PORT"),
