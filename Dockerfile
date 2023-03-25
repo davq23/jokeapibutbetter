@@ -19,7 +19,7 @@ RUN go build -o ./main ./main.go
 # Build frontend on the cloud
 FROM node:16.17.0-alpine as build-frontend
 # Frontend assets path
-ARG FRONTEND_ASSETS_URL
+# ARG FRONTEND_ASSETS_URL
 # API URL
 # ARG JOKEAPI_URL
 
