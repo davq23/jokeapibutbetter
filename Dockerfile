@@ -63,7 +63,9 @@ COPY upload-frontend-ftp/ /upload
 
 COPY --from=build-frontend /app/dist/ /upload/dist
 
-RUN cd upload/; php ftp_upload.php
+RUN cd upload/
+
+ENTRYPOINT [ "php ftp_upload.php" ]
 
 RUN touch finish.txt
 
