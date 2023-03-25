@@ -21,10 +21,10 @@ FROM node:16.17.0-alpine as build-frontend
 # Frontend assets path
 ARG FRONTEND_ASSETS_URL
 # API URL
-ARG JOKEAPI_URL
+# ARG JOKEAPI_URL
 
-RUN if [[ -z "$FRONTEND_ASSETS_URL" ]] ; then export FRONTEND_ASSETS_URL=${FRONTEND_ASSETS_URL} ; fi
-RUN if [[ -z "$JOKEAPI_URL" ]] ; then export VITE_JOKEAPI_URL=${JOKEAPI_URL} ; fi
+# RUN if [[ -z "$FRONTEND_ASSETS_URL" ]] ; then export FRONTEND_ASSETS_URL=${FRONTEND_ASSETS_URL} ; fi
+# RUN if [[ -z "$JOKEAPI_URL" ]] ; then export VITE_JOKEAPI_URL=${JOKEAPI_URL} ; fi
 
 RUN mkdir /app
 
@@ -45,16 +45,16 @@ RUN npm run build
 
 # Upload Vue frontend through FTP
 FROM php:8.1.17RC1-cli-alpine3.16 as upload-frontend-ftp
-ARG FTP_HOST
-ARG FTP_PORT
-ARG FTP_USERNAME
-ARG FTP_PASSWORD
-ARG FTP_TIMEOUT
-
-RUN if [[ -z "$FTP_HOST" ]] ; then export FTP_HOST=${FTP_HOST} ; fi
-RUN if [[ -z "$FTP_PASSWORD" ]] ; then export FTP_PASSWORD=${FTP_PASSWORD} ; fi
-RUN if [[ -z "$FTP_USERNAME" ]] ; then export FTP_USERNAME=${FTP_USERNAME} ; fi
-RUN if [[ -z "$FTP_PORT" ]] ; then export FTP_PORT=${FTP_PORT} ; fi
+# ARG FTP_HOST
+# ARG FTP_PORT
+# ARG FTP_USERNAME
+# ARG FTP_PASSWORD
+# ARG FTP_TIMEOUT
+# 
+# RUN if [[ -z "$FTP_HOST" ]] ; then export FTP_HOST=${FTP_HOST} ; fi
+# RUN if [[ -z "$FTP_PASSWORD" ]] ; then export FTP_PASSWORD=${FTP_PASSWORD} ; fi
+# RUN if [[ -z "$FTP_USERNAME" ]] ; then export FTP_USERNAME=${FTP_USERNAME} ; fi
+# RUN if [[ -z "$FTP_PORT" ]] ; then export FTP_PORT=${FTP_PORT} ; fi
 
 RUN mkdir /upload
 RUN mkdir /upload/dist
