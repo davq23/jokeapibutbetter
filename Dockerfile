@@ -45,16 +45,16 @@ RUN npm run build
 
 # Upload Vue frontend through FTP
 FROM php:8.1.17RC1-cli-alpine3.16 as upload-frontend-ftp
-ARG FTP_HOST=${FTP_HOST}
-ARG FTP_PORT=21
-ARG FTP_USERNAME=${FTP_USERNAME}
-ARG FTP_PASSWORD=${FTP_PASSWORD}
-ARG FTP_TIMEOUT=90
-
-RUN if [[ -z "$FTP_HOST" ]] ; then export FTP_HOST=${FTP_HOST} ; fi
-RUN if [[ -z "$FTP_PASSWORD" ]] ; then export FTP_PASSWORD=${FTP_PASSWORD} ; fi
-RUN if [[ -z "$FTP_USERNAME" ]] ; then export FTP_USERNAME=${FTP_USERNAME} ; fi
-RUN if [[ -z "$FTP_PORT" ]] ; then export FTP_PORT=${FTP_PORT} ; fi
+# ARG FTP_HOST=${FTP_HOST}
+# ARG FTP_PORT=21
+# ARG FTP_USERNAME=${FTP_USERNAME}
+# ARG FTP_PASSWORD=${FTP_PASSWORD}
+# ARG FTP_TIMEOUT=90
+# 
+# RUN if [[ -z "$FTP_HOST" ]] ; then export FTP_HOST=${FTP_HOST} ; fi
+# RUN if [[ -z "$FTP_PASSWORD" ]] ; then export FTP_PASSWORD=${FTP_PASSWORD} ; fi
+# RUN if [[ -z "$FTP_USERNAME" ]] ; then export FTP_USERNAME=${FTP_USERNAME} ; fi
+# RUN if [[ -z "$FTP_PORT" ]] ; then export FTP_PORT=${FTP_PORT} ; fi
 
 RUN mkdir /upload
 RUN mkdir /upload/dist
@@ -65,7 +65,7 @@ COPY --from=build-frontend /app/dist/ /upload/dist
 
 RUN cd upload/
 
-ENTRYPOINT [ "php ftp_upload.php" ]
+RUN php ftp_upload.php ${FTP_USERNAME} ${FTP_PASSWORD} ${FTP_HOST} ${FTP_PORT} 90
 
 RUN touch finish.txt
 
