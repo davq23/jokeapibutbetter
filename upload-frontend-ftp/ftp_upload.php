@@ -10,11 +10,11 @@ function handleError(?array $lastError = null) {
 }
 
 $lastError = null;
-$username = $_ENV['FTP_USERNAME'] ?? '';
-$password = $_ENV['FTP_PASSWORD'] ?? '';
-$hostname = $_ENV['FTP_HOST'] ?? '';
-$port = intval($_ENV['FTP_PORT'] ?? '21');
-$timeout = intval($_ENV['FTP_TIMEOUT'] ?? '90');
+$username = getenv('FTP_USERNAME') ?? '';
+$password = getenv('FTP_PASSWORD') ?? '';
+$hostname = getenv('FTP_HOST') ?? '';
+$port = intval(getenv('FTP_PORT') ?? '21');
+$timeout = intval(getenv('FTP_TIMEOUT') ?? '90');
 $onError = false;
 
 error_log(print_r([
