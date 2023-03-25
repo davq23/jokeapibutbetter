@@ -17,6 +17,11 @@ $port = intval($_ENV['FTP_PORT'] ?? '21');
 $timeout = intval($_ENV['FTP_TIMEOUT'] ?? '90');
 $onError = false;
 
+error_log(print_r([
+    "USER: $username",
+    "HOST: $hostname",
+], true));
+
 $ftp = ftp_connect($hostname, $port, $timeout);
 
 if ($ftp === false) {
