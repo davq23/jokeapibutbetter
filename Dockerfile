@@ -62,7 +62,7 @@ EXPOSE 8080
 
 USER appuser
 
-CMD ["/app_execute.sh"]
+CMD ["sh", "/app_execute.sh"]
 
 
 
