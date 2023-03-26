@@ -43,47 +43,26 @@ COPY vue-frontend/ .
 
 RUN npm run build
 
-# Upload Vue frontend through FTP
-FROM php:8.1.17RC1-cli-alpine3.16 as upload-frontend-ftp
-# ARG FTP_HOST=${FTP_HOST}
-# ARG FTP_PORT=21
-# ARG FTP_USERNAME=${FTP_USERNAME}
-# ARG FTP_PASSWORD=${FTP_PASSWORD}
-# ARG FTP_TIMEOUT=90
-# 
-# RUN if [[ -z "$FTP_HOST" ]] ; then export FTP_HOST=${FTP_HOST} ; fi
-# RUN if [[ -z "$FTP_PASSWORD" ]] ; then export FTP_PASSWORD=${FTP_PASSWORD} ; fi
-# RUN if [[ -z "$FTP_USERNAME" ]] ; then export FTP_USERNAME=${FTP_USERNAME} ; fi
-# RUN if [[ -z "$FTP_PORT" ]] ; then export FTP_PORT=${FTP_PORT} ; fi
-
-RUN mkdir /upload
-RUN mkdir /upload/dist
-
-COPY upload-frontend-ftp/ /upload
-
-COPY --from=build-frontend /app/dist/ /upload/dist
-
-RUN cd upload/; php ftp_upload.php ${FTP_USERNAME} ${FTP_PASSWORD} ${FTP_HOST} ${FTP_PORT} 90
-
-RUN touch finish.txt
-
 # Run the API
 FROM alpine
 
 RUN mkdir /app
-
+RUN mkdir /frontend
+RUN sudo apk update; sudo apk add openssh
 RUN addgroup -g 1001 appgroup && adduser -S -u 1001 -G appgroup appuser
 
-COPY --from=upload-frontend-ftp /finish.txt /finish.txt
+COPY --from=build-frontend /app/dist /frontend
 COPY --from=build-backend /app/main /main
+COPY app_execute.sh /app_execute.sh
 
 RUN chown -R appuser:appgroup /main
+RUN chown -R appuser:appgroup /app_execute.sh
 
 EXPOSE 8080
 
 USER appuser
 
-CMD ["/main"]
+CMD ["/app_execute.sh"]
 
 
 
