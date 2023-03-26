@@ -48,7 +48,7 @@ FROM alpine
 
 RUN mkdir /app
 RUN mkdir /frontend
-RUN sudo apk update; sudo apk add openssh
+RUN apk update; apk add openssh
 RUN addgroup -g 1001 appgroup && adduser -S -u 1001 -G appgroup appuser
 
 COPY --from=build-frontend /app/dist /frontend
