@@ -27,12 +27,13 @@ type AuthRequest struct {
 }
 
 type AuthResponse struct {
-	XMLName  xml.Name `json:"-" xml:"auth" yaml:"-"`
-	UserID   string   `json:"user_id" xml:"user_id,attr" yaml:"user_id"`
-	Username string   `json:"username" xml:"username,attr" yaml:"username"`
-	Email    string   `json:"email" xml:"email,attr" yaml:"email"`
-	Token    string   `json:"token" xml:",cdata" yaml:"token"`
-	Roles    []string `json:"roles" xml:"roles>role" yaml:"roles"`
+	XMLName   xml.Name `json:"-" xml:"auth" yaml:"-"`
+	UserID    string   `json:"user_id" xml:"user_id,attr" yaml:"user_id"`
+	Username  string   `json:"username" xml:"username,attr" yaml:"username"`
+	Email     string   `json:"email" xml:"email,attr" yaml:"email"`
+	Token     string   `json:"token" xml:",cdata" yaml:"token"`
+	Roles     []string `json:"roles" xml:"roles>role" yaml:"roles"`
+	ExpiresAt int      `json:"expires_at" xml:"expires_at,attr" yaml:"expires_at"`
 }
 
 type ConfigResponse struct {
