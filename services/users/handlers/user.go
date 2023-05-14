@@ -164,11 +164,14 @@ func (u User) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	currentDate := time.Now().Unix()
+	expirationDate := time.Now().Add(10 * time.Minute).Unix()
+
 	claims := middlewares.AuthClaims{
 		UserID: user.ID,
 		StandardClaims: jwt.StandardClaims{
-			IssuedAt:  time.Now().Unix(),
-			ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+			IssuedAt:  currentDate,
+			ExpiresAt: expirationDate,
 		},
 	}
 
@@ -196,11 +199,12 @@ func (u User) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	})
 
 	formatter.WriteFormatted(w, libs.StandardReponse{Status: http.StatusOK, Data: libs.AuthResponse{
-		Token:    token,
-		UserID:   user.ID,
-		Email:    user.Email,
-		Username: user.Username,
-		Roles:    user.Roles,
+		Token:     token,
+		UserID:    user.ID,
+		Email:     user.Email,
+		Username:  user.Username,
+		Roles:     user.Roles,
+		ExpiresAt: int(expirationDate),
 	}})
 }
 
