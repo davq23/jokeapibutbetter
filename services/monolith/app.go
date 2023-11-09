@@ -250,7 +250,7 @@ func (a *App) Setup() error {
 }
 
 func (a *App) Run() error {
-	err := a.server.ListenAndServe()
+	err := a.server.ListenAndServeTLS(os.Getenv("SSL_CERT_FILE"), os.Getenv("SSL_KEY_FILE"))
 
 	if err != nil {
 		log.Println(err.Error())
