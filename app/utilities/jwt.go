@@ -3,7 +3,7 @@ package utilities
 import (
 	"errors"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func SignJWT(claims jwt.Claims, secret string) (string, error) {
