@@ -10,7 +10,7 @@ import (
 
 	"github.com/davq23/jokeapibutbetter/app/libs"
 	"github.com/davq23/jokeapibutbetter/app/utilities"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type JWTAuth struct {
@@ -30,7 +30,7 @@ func NewJWTAuth(secret string, refreshSecret string, allowRefresh bool, logger *
 }
 
 type AuthClaims struct {
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 	UserID string
 }
 
