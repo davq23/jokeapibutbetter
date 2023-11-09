@@ -85,9 +85,10 @@ func (j Joke) GetAll(w http.ResponseWriter, r *http.Request) {
 	jokes, err := j.jokeService.FindAll(r.Context(), limit, language, userID, direction, addedAtOffset)
 
 	if err != nil {
+		j.logger.Println(err.Error())
 		formatter.WriteFormatted(w, libs.StandardReponse{
-			Status:  http.StatusBadRequest,
-			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+			Message: "A problem occurred on the server, probably shitty code",
 		})
 		return
 	}
@@ -120,9 +121,10 @@ func (j Joke) Save(w http.ResponseWriter, r *http.Request) {
 	err := j.jokeService.Save(r.Context(), joke)
 
 	if err != nil {
+		j.logger.Println(err.Error())
 		formatter.WriteFormatted(w, libs.StandardReponse{
 			Status:  http.StatusBadRequest,
-			Message: err.Error(),
+			Message: "An error occured on this server, probably shitty code",
 		})
 		return
 	}
