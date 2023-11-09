@@ -10,7 +10,7 @@ import (
 	"github.com/davq23/jokeapibutbetter/app/middlewares"
 	"github.com/davq23/jokeapibutbetter/app/services"
 	"github.com/davq23/jokeapibutbetter/app/utilities"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/mux"
 )
 
@@ -164,14 +164,11 @@ func (u User) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	currentDate := time.Now().Unix()
-	expirationDate := time.Now().Add(10 * time.Minute).Unix()
-
 	claims := middlewares.AuthClaims{
 		UserID: user.ID,
-		StandardClaims: jwt.StandardClaims{
-			IssuedAt:  currentDate,
-			ExpiresAt: expirationDate,
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(300 * time.Minute)),
 		},
 	}
 
@@ -204,7 +201,7 @@ func (u User) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 		Email:     user.Email,
 		Username:  user.Username,
 		Roles:     user.Roles,
-		ExpiresAt: int(expirationDate),
+		ExpiresAt: int(claims.ExpiresAt.Unix()),
 	}})
 }
 
