@@ -13,6 +13,7 @@ require (
 
 require (
 	github.com/aws/aws-sdk-go v1.44.162 // indirect
+	github.com/golang-jwt/jwt/v5 v5.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 )
 
