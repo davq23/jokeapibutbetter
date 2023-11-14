@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -44,33 +43,6 @@ func (a *App) Shutdown(ctx context.Context) error {
 	a.server.Shutdown(ctx)
 
 	return nil
-}
-
-func (a *App) setupStaticRoutes(router *mux.Router) {
-	directory := os.DirFS("dist")
-	fsHome := http.FileServer(http.FS(directory))
-
-	// Asset routes
-	router.PathPrefix("/assets").Methods(http.MethodGet).Handler(fsHome)
-
-	// Main routes
-	router.PathPrefix("/").Methods(http.MethodGet).Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		file, err := directory.Open("index.html")
-
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		fileStat, err := file.Stat()
-
-		if err != nil {
-			w.WriteHeader(http.StatusFailedDependency)
-			return
-		}
-
-		http.ServeContent(w, r, fileStat.Name(), fileStat.ModTime(), file.(io.ReadSeekCloser))
-	}))
 }
 
 func (a *App) setupApiRoutes(router *mux.Router, config *libs.ConfigResponse) {
@@ -239,7 +211,7 @@ func (a *App) Setup() error {
 	//a.setupStaticRoutes(router)
 
 	a.server = &http.Server{
-		Addr:         ":" + os.Getenv("PORT"),
+		Addr:         os.Getenv("HOST") + ":" + os.Getenv("PORT"),
 		Handler:      router,
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  2 * time.Second,
@@ -250,7 +222,7 @@ func (a *App) Setup() error {
 }
 
 func (a *App) Run() error {
-	err := a.server.ListenAndServeTLS(os.Getenv("SSL_CERT_FILE"), os.Getenv("SSL_KEY_FILE"))
+	err := a.server.ListenAndServe()
 
 	if err != nil {
 		log.Println(err.Error())
